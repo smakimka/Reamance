@@ -1,15 +1,16 @@
+import os
 from markup import Markup
 from datetime import timedelta
 
 # DB
-db_connection_string = 'postgresql://rinder:2932@localhost:5432/rinder'
+db_connection_string = os.environ['reamance_db_connection']
 NAME_MAX_LEN = 100
 DESCRIPTION_MAX_LEN = 200
 INTEREST_MAX_LEN = 50
 
 
 # Bot
-bot_token = '5488588910:AAHW2bnPWloSs-YTarMNRlPJwF2sZccdtCc'
+bot_token = os.environ['reamance_bot_token']
 
 # Statuses
 NEW = 0
