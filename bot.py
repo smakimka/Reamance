@@ -225,7 +225,6 @@ def get_interests_markup(user):
 
     for interest in non_user_interests[user.page * config.items_in_page:user.page * config.items_in_page + config.items_in_page]:
         interests_markup.append([interest])
-    print(non_user_interests, )
 
     with_transitions = False
     if config.items_in_page < len(non_user_interests):

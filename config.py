@@ -1,16 +1,19 @@
 import os
+from dotenv import load_dotenv
+
 from markup import Markup
 from datetime import timedelta
 
+load_dotenv()
 # DB
-db_connection_string = os.environ['reamance_db_connection']
+db_connection_string = os.getenv('DB_CONNECTION_STRING')
 NAME_MAX_LEN = 100
 DESCRIPTION_MAX_LEN = 200
 INTEREST_MAX_LEN = 50
 
 
 # Bot
-bot_token = os.environ['reamance_bot_token']
+bot_token = os.getenv('BOT_TOKEN')
 
 # Statuses
 NEW = 0
