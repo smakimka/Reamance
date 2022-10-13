@@ -2,6 +2,7 @@
 .vscode/
 .idea/
 .fleet/
+.tests/
 
 # Vagrant
 .vagrant/
