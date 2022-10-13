@@ -1,11 +1,11 @@
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, DateTime, Boolean, ForeignKey, Text, insert
 
-from config import db_connection_string, interests, NAME_MAX_LEN, DESCRIPTION_MAX_LEN, INTEREST_MAX_LEN
+from config import DB_CONNECTION_STRING, interests, NAME_MAX_LEN, DESCRIPTION_MAX_LEN, INTEREST_MAX_LEN
 
 
 
 def main():
-    engine = create_engine(db_connection_string)
+    engine = create_engine(DB_CONNECTION_STRING)
 
     mo = MetaData()
 

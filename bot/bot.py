@@ -814,7 +814,7 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 if __name__ == '__main__':
     # init db
     mo = MetaData()
-    engine = create_engine(config.db_connection_string)
+    engine = create_engine(config.DB_CONNECTION_STRING)
     Table('users', mo, autoload_with=engine)
     Table('interests', mo, autoload_with=engine)
     Table('users_interests', mo, autoload_with=engine)
