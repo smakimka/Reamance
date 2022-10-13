@@ -5,7 +5,7 @@ import copy
 from datetime import datetime
 
 import telegram
-from sqlalchemy import create_engine, MetaData, Table
+from sqlalchemy import create_engine, MetaData, Table, inspect
 
 from telegram import InlineQueryResultArticle, InputTextMessageContent, Update, ReplyKeyboardRemove, \
     InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
@@ -13,12 +13,17 @@ from telegram.constants import ParseMode
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, CallbackQueryHandler, filters
 
 import config
-from user import User
-from markup import Markup
+from .db import main as init_database
+from .user import User
+from .markup import Markup
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
+
+# init db
+mo = MetaData()
+engine = create_engine(config.DB_CONNECTION_STRING)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -811,10 +816,11 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             await update.message.reply_text(f'{user.status=}', reply_markup=config.main_menu_markup)
 
 
-if __name__ == '__main__':
-    # init db
-    mo = MetaData()
-    engine = create_engine(config.DB_CONNECTION_STRING)
+def main():
+    ins = inspect(engine)
+    if not ins.dialect.has_table(engine.connect(), 'users'):
+        init_database()
+
     Table('users', mo, autoload_with=engine)
     Table('interests', mo, autoload_with=engine)
     Table('users_interests', mo, autoload_with=engine)

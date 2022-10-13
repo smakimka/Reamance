@@ -52,8 +52,3 @@ def main():
             conn.execute(insert(interests_table).values({
                 'interest': interest
             }))
-
-
-
-if __name__ == '__main__':
-    main()
