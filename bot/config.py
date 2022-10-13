@@ -6,7 +6,10 @@ from datetime import timedelta
 
 load_dotenv()
 # DB
-db_connection_string = os.getenv('DB_CONNECTION_STRING')
+DB_USER = os.getenv('DB_USER')
+DB_PASSWORD = os.getenv('DB_PASSWORD')
+DB_NAME = os.getenv('DB_NAME')
+
 NAME_MAX_LEN = 100
 DESCRIPTION_MAX_LEN = 200
 INTEREST_MAX_LEN = 50
