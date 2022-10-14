@@ -44,6 +44,13 @@ def main():
           Column('interest_id', ForeignKey('interests.id'), nullable=False),
           )
 
+    user_user = Table('user_user', mo,
+                      Column('id', Integer, primary_key=True, autoincrement=True),
+                      Column('active_user_id', ForeignKey('users.id'), nullable=False),
+                      Column('passive_user_id', ForeignKey('users.id'), nullable=False),
+                      Column('status', Integer, nullable=False),
+                      )
+
     with engine.connect() as conn:
         mo.drop_all(conn)
         mo.create_all(conn)
