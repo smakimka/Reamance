@@ -83,6 +83,14 @@ def build_edit_profile_keyboard():
     return keyboard.inline
 
 
+def build_swipe_keyboard(passive_user_id):
+    keyboard = copy.deepcopy(config.swipe_markup)
+    keyboard.add_callback(0, 0, f'{config.swipe_callback}:{passive_user_id}:{config.LIKE}')
+    keyboard.add_callback(0, 1, f'{config.swipe_callback}:{passive_user_id}:{config.ANONIMOS}')
+    keyboard.add_callback(0, 1, f'{config.swipe_callback}:{passive_user_id}:{config.DISLIKE}')
+    return keyboard.inline
+
+
 def collect_name(user: User, message: telegram.Message) -> bool:
     if len(message.text) <= config.NAME_MAX_LEN:
         user.name = message.text
@@ -410,6 +418,12 @@ async def bot(update: Update, context: ContextTypes.DEFAULT_TYPE):
                                                                  photo=base64.b64decode(user.photo.encode('ascii')),
                                                                  reply_markup=build_edit_profile_keyboard())
                     user.active_msg_id = edit_profile_msg.id
+                elif message.text == config.start_swiping_phrase:
+                    profile_data = user.get_next_match()
+                    profile_msg = await message.reply_photo(caption=config.get_profile_caption(profile_data, with_tg=False),
+                                                            photo=base64.b64decode(profile_data.photo.encode('ascii')),
+                                                            reply_markup=build_swipe_keyboard(profile_data.id))
+                    user.active_msg_id = profile_msg.id
 
             elif user.status == config.EDIT_NAME:
                 if collect_name(user, message):
@@ -591,12 +605,10 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                         return
 
                 print(query.data)
-                if callback == config.back_to_edit_callback:
-                    user.status = config.MAIN_MENU
-                    await context.bot.send_photo(chat_id=user.chat_id,
-                                                 caption=config.get_profile_caption(user),
-                                                 photo=base64.b64decode(user.photo.encode('ascii')),
-                                                 reply_markup=build_edit_profile_keyboard())
+                if callback == config.swipe_callback:
+                    passive_user_id, like_value = query.data.split(':')[2], query.data.split(':')[3]
+                    user.like(passive_user_id, like_value)
+                    pass
 
                 elif callback == config.edit_data_callback:
                     detail = query.data.split(':', 1)[1]
@@ -816,13 +828,14 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             await update.message.reply_text(f'{user.status=}', reply_markup=config.main_menu_markup)
 
 
-def main():
+def run():
     ins = inspect(engine)
     if not ins.dialect.has_table(engine.connect(), 'users'):
         init_database()
 
     Table('users', mo, autoload_with=engine)
     Table('interests', mo, autoload_with=engine)
+    Table('user_user', mo, autoload_with=engine)
     Table('users_interests', mo, autoload_with=engine)
 
     # init tg

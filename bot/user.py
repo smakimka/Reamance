@@ -1,4 +1,5 @@
-from sqlalchemy import select, update, insert, delete, func
+from sqlalchemy import select, update, insert, delete, func, and_
+from dataclasses import dataclass
 
 from datetime import datetime
 
@@ -10,6 +11,7 @@ class User:
         self.users = mo.tables['users']
         self.interests = mo.tables['interests']
         self.users_interests = mo.tables['users_interests']
+        self.user_user = mo.tables['user_user']
 
         self.conn = conn
         self.chat_id = chat_id
@@ -36,6 +38,10 @@ class User:
 
         self._init()
         self.changed = False
+
+    @property
+    def interests_str(self):
+        return self._get_interests_str()
 
     def _init(self):
         user = self.conn.execute(select(self.users.c.id,
@@ -135,7 +141,7 @@ class User:
             }))
         return 'ok'
 
-    def get_interests_str(self):
+    def _get_interests_str(self):
         interests_list = []
         interests = self.conn.execute(select(self.interests.c.interest).join(self.interests).select_from(self.users_interests).
                                       where(self.users_interests.c.user_id == self.id))
@@ -156,6 +162,60 @@ class User:
 
     def clear_interests(self):
         self.conn.execute(delete(self.users_interests).where(self.users_interests.c.user_id == self.id))
+
+    def get_next_match(self):
+        match = self.conn.execute(select(self.users.c.id,
+                                         self.users.c.name,
+                                         self.users.c.age,
+                                         self.users.c.faculty,
+                                         self.users.c.year,
+                                         self.users.c.description,
+                                         self.users.c.photo,
+                                         self.users.c.username).
+                                  where(and_(self.users.c.id != self.id,
+                                             self.users.c.id.not_in(select(self.user_user.c.passive_user_id).
+                                                                    where(self.user_user.c.active_user_id == self.id)))).
+                                  order_by(func.random()).
+                                  limit(1)).first()
+
+        passive_user_id = match[0]
+
+        interests_list = []
+        interests = self.conn.execute(
+            select(self.interests.c.interest).join(self.interests).select_from(self.users_interests).
+            where(self.users_interests.c.user_id == passive_user_id))
+        for interest in interests:
+            interests_list.append(interest[0])
+        if interests_list:
+            interests_str = ', '.join(interests_list)
+        else:
+            interests_str = '-'
+
+        return ProfileData(
+            id=passive_user_id,
+            name=match[1],
+            age=match[2],
+            faculty=match[3],
+            year=match[4],
+            description=match[5],
+            photo=match[6],
+            username=match[7],
+            interests_str=interests_str,
+        )
+
+    def like(self, passive_user_id, like_value):
+        self.conn.execute(insert(self.user_user).values({
+            'active_user_id': self.id,
+            'passive_user_id': passive_user_id,
+            'status': like_value,
+        }))
+
+        if like_value == config.LIKE:
+            passive_user_like_value = self.conn.execute(select(self.user_user.c.status).
+                                                        where(and_(self.user_user.acive_user_id == passive_user_id,
+                                                                   self.user_user.passive_user_id == self.id))).first()
+            if passive_user_like_value:
+                pass
 
     def sync(self):
         self.conn.execute(update(self.users).values({
@@ -179,3 +239,16 @@ class User:
             'page': self.page,
 
         }).where(self.users.c.id == self.id))
+
+
+@dataclass
+class ProfileData:
+    id: int
+    name: str
+    age: int
+    faculty: str
+    year: int
+    description: str
+    photo: str
+    interests_str: str
+    username: str

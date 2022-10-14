@@ -3,7 +3,6 @@ from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, 
 from config import DB_CONNECTION_STRING, interests, NAME_MAX_LEN, DESCRIPTION_MAX_LEN, INTEREST_MAX_LEN
 
 
-
 def main():
     engine = create_engine(DB_CONNECTION_STRING)
 

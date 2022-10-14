@@ -57,6 +57,12 @@ SHOW_MALE = 0
 SHOW_FEMALE = 1
 SHOW_BOTH = 2
 
+# Likes
+DISLIKE = 0
+ANONIMOS = 1
+LIKE = 2
+
+
 faculties = ['ВИШ "НМиТ"', 'ВШКМиС', 'ВШБиЭ', 'ВШФ', 'ВШМ', 'ВШП', 'ВШСГН', 'ВШКИ', 'ВШ "Форсайт"',
              'Институт "Первая Академия медиа"', 'Капитаны']
 
@@ -92,6 +98,7 @@ negative_approval_callback = 'negative_approval'
 edit_profile_callback = 'edit_profile'
 edit_data_callback = 'edit_data'
 back_to_edit_callback = 'back_to_edit'
+swipe_callback = 'swipe'
 
 main_menu_callback = 'main_menu'
 
@@ -99,13 +106,13 @@ ban_duration = timedelta(days=1)
 max_ban_count = 5
 
 
-def get_profile_caption(user):
+def get_profile_caption(user, with_tg=True):
     return f'''{user.name}, {user.age}, {user.faculty}, {user.year}й курс
     
 {user.description}
 
-Интересы: {user.get_interests_str()}    
-Телеграм: {user.username} 
+Интересы: {user.interests_str}    
+{'Телеграм:' + user.username if with_tg else ''}  
 '''
 
 
@@ -128,6 +135,7 @@ edit_profile_markup = Markup([['Имя', 'Возраст'],
                               ['Описание', 'Интересы'],
                               ['Пол', 'Предпочтения по полу'],
                               ['Предпочтения по возрасту', 'Фото']])
+swipe_markup = Markup([['❤', '🖤', '💩']])
 
 items_in_page = 5
 if len(faculties) % items_in_page == 0:
@@ -137,6 +145,8 @@ else:
 
 
 edit_profile_phrase = 'Редактировать анкету'
+start_swiping_phrase = 'Пойти нахуй'
+
 edit_profile_phrases = {'name': 'Введи новое имя',
                         'age': 'Введи новый возраст',
                         'faculty': 'Выбери новый факультет',
@@ -148,7 +158,7 @@ edit_profile_phrases = {'name': 'Введи новое имя',
                         'age_preferences': 'Напиши, людей какого возраста ты хочешь видеть? Напиши диапазон через "-"\nНапример: (19-21)',
                         'photo': 'Скидывай новую фотку'}
 after_edit_markup = Markup([['<<', 'Главное меню']])
-main_menu_markup = Markup([[edit_profile_phrase, 'Пойти нахуй']]).reply
+main_menu_markup = Markup([[start_swiping_phrase, edit_profile_phrase]]).reply
 
 replies = {
     'terms': {'text': 'Привет\! Рад видеть тебя в дейтинг боте для студентов топ вузов\n\n'

@@ -2,7 +2,7 @@ version: "3.9"
 services:
   bot:
     build: .
-    command: "python3 main.py"
+    command: "python3 -u main.py"
     depends_on:
       - postgres
   postgres:
@@ -14,5 +14,5 @@ services:
       PGDATA: "/var/lib/postgresql/data/pgdata"
     volumes:
       - ./pgdata:/var/lib/postgresql/data/pgdata
-    expose:
-      - "5432"
+    ports:
+      - "127.0.0.1:5433:5432"
