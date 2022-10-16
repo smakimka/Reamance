@@ -99,6 +99,8 @@ edit_profile_callback = 'edit_profile'
 edit_data_callback = 'edit_data'
 back_to_edit_callback = 'back_to_edit'
 swipe_callback = 'swipe'
+show_profile_callback = 'show_profile'
+like_reply_callback = 'like_reply'
 
 main_menu_callback = 'main_menu'
 
@@ -136,6 +138,14 @@ edit_profile_markup = Markup([['Имя', 'Возраст'],
                               ['Пол', 'Предпочтения по полу'],
                               ['Предпочтения по возрасту', 'Фото']])
 swipe_markup = Markup([['❤', '🖤', '💩']])
+
+like_text = '#like\nТебе поставили лайк! Нажми на кнопку и узнай кто это'
+like_markup = Markup([['Посмотреть']])
+
+match_text = '#match\nДля тебя нашлась пара'
+match_markup = Markup([['Посмотреть']])
+
+like_reply_markup = Markup([['❤', '💩']])
 
 items_in_page = 5
 if len(faculties) % items_in_page == 0:

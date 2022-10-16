@@ -165,6 +165,7 @@ class User:
 
     def get_next_match(self):
         match = self.conn.execute(select(self.users.c.id,
+                                         self.users.c.chat_id,
                                          self.users.c.name,
                                          self.users.c.age,
                                          self.users.c.faculty,
@@ -193,29 +194,40 @@ class User:
 
         return ProfileData(
             id=passive_user_id,
-            name=match[1],
-            age=match[2],
-            faculty=match[3],
-            year=match[4],
-            description=match[5],
-            photo=match[6],
-            username=match[7],
+            chat_id=match[1],
+            name=match[2],
+            age=match[3],
+            faculty=match[4],
+            year=match[5],
+            description=match[6],
+            photo=match[7],
+            username=match[8],
             interests_str=interests_str,
         )
 
-    def like(self, passive_user_id, like_value):
+    def insert_like(self, passive_user_id, like_value):
         self.conn.execute(insert(self.user_user).values({
             'active_user_id': self.id,
             'passive_user_id': passive_user_id,
             'status': like_value,
         }))
 
-        if like_value == config.LIKE:
-            passive_user_like_value = self.conn.execute(select(self.user_user.c.status).
-                                                        where(and_(self.user_user.acive_user_id == passive_user_id,
-                                                                   self.user_user.passive_user_id == self.id))).first()
-            if passive_user_like_value:
-                pass
+    def like(self, passive_user_id, like_value):
+        self.insert_like(passive_user_id, like_value)
+
+        passive_user_like_value = self.conn.execute(select(self.user_user.c.status).
+                                                    where(and_(self.user_user.acive_user_id == passive_user_id,
+                                                               self.user_user.passive_user_id == self.id))).first()
+
+        if passive_user_like_value:
+            if like_value > config.DISLIKE and passive_user_like_value[0] > config.DISLIKE:
+                return 'match'
+            elif like_value == config.LIKE:
+                return 'like'
+        else:
+            if like_value == config.LIKE:
+                return 'like'
+        return 'no_event'
 
     def sync(self):
         self.conn.execute(update(self.users).values({
@@ -244,6 +256,7 @@ class User:
 @dataclass
 class ProfileData:
     id: int
+    chat_id: int
     name: str
     age: int
     faculty: str
