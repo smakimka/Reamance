@@ -439,7 +439,7 @@ async def bot(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     user.active_msg_id = edit_profile_msg.id
                 elif message.text == config.start_swiping_phrase:
                     profile_data = user.get_next_match()
-                    if profile_data:
+                    if profile_data is not None:
                         profile_msg = await message.reply_photo(caption=config.get_profile_caption(profile_data, with_tg=False),
                                                                 photo=base64.b64decode(profile_data.photo.encode('ascii')),
                                                                 reply_markup=build_swipe_keyboard(profile_data))
