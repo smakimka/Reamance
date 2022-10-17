@@ -178,6 +178,8 @@ class User:
                                                                     where(self.user_user.c.active_user_id == self.id)))).
                                   order_by(func.random()).
                                   limit(1)).first()
+        if not match:
+            return None
 
         passive_user_id = match[0]
 
@@ -216,8 +218,8 @@ class User:
         self.insert_like(passive_user_id, like_value)
 
         passive_user_like_value = self.conn.execute(select(self.user_user.c.status).
-                                                    where(and_(self.user_user.acive_user_id == passive_user_id,
-                                                               self.user_user.passive_user_id == self.id))).first()
+                                                    where(and_(self.user_user.c.active_user_id == passive_user_id,
+                                                               self.user_user.c.passive_user_id == self.id))).first()
 
         if passive_user_like_value:
             if like_value > config.DISLIKE and passive_user_like_value[0] > config.DISLIKE:

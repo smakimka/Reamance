@@ -87,7 +87,7 @@ def build_swipe_keyboard(profile_data):
     keyboard = copy.deepcopy(config.swipe_markup)
     keyboard.add_callback(0, 0, f'{config.swipe_callback}:{profile_data.id}:{config.LIKE}:{profile_data.chat_id}')
     keyboard.add_callback(0, 1, f'{config.swipe_callback}:{profile_data.id}:{config.ANONIMOS}:{profile_data.chat_id}')
-    keyboard.add_callback(0, 1, f'{config.swipe_callback}:{profile_data.id}:{config.DISLIKE}:{profile_data.chat_id}')
+    keyboard.add_callback(0, 2, f'{config.swipe_callback}:{profile_data.id}:{config.DISLIKE}:{profile_data.chat_id}')
     return keyboard.inline
 
 
@@ -439,10 +439,13 @@ async def bot(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     user.active_msg_id = edit_profile_msg.id
                 elif message.text == config.start_swiping_phrase:
                     profile_data = user.get_next_match()
-                    profile_msg = await message.reply_photo(caption=config.get_profile_caption(profile_data, with_tg=False),
-                                                            photo=base64.b64decode(profile_data.photo.encode('ascii')),
-                                                            reply_markup=build_swipe_keyboard(profile_data))
-                    user.active_msg_id = profile_msg.id
+                    if profile_data:
+                        profile_msg = await message.reply_photo(caption=config.get_profile_caption(profile_data, with_tg=False),
+                                                                photo=base64.b64decode(profile_data.photo.encode('ascii')),
+                                                                reply_markup=build_swipe_keyboard(profile_data))
+                        user.active_msg_id = profile_msg.id
+                    else:
+                        await message.reply_text(config.replies['no_more_matches'])
 
             elif user.status == config.EDIT_NAME:
                 if collect_name(user, message):
@@ -594,20 +597,23 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if callback == config.positive_approval_callback or \
             callback == config.negative_approval_callback or \
             callback == config.show_profile_callback:
-        user_chat_id = query.data.split(':', 1)[1]
+        user_chat_id = query.data.split(':')[1]
         with engine.connect() as conn:
             with User(mo, conn, user_chat_id) as user:
                 if callback == config.show_profile_callback:
                     detail = query.data.split(':')[2]
                     if detail == 'like':
-                        await query.edit_message_text(text=config.get_profile_caption(user, with_tg=False),
-                                                      reply_markup=build_like_reply_markup(user.chat_id))
-                        await query.edit_message_media(InputMediaPhoto(base64.b64decode(user.photo.encode('ascii'))))
+                        await query.edit_message_reply_markup(None)
+                        await context.bot.send_photo(chat_id=query.from_user.id,
+                                                     caption=f'#like\n{config.get_profile_caption(user, with_tg=False)}',
+                                                     reply_markup=build_like_reply_markup(user.chat_id),
+                                                     photo=base64.b64decode(user.photo.encode('ascii')))
 
                     elif detail == 'match':
-                        await query.edit_message_text(text=config.get_profile_caption(user),
-                                                      reply_markup=None)
-                        await query.edit_message_media(InputMediaPhoto(base64.b64decode(user.photo.encode('ascii'))))
+                        await query.edit_message_reply_markup(None)
+                        await context.bot.send_photo(chat_id=query.from_user.id,
+                                                     caption=f'#match\n{config.get_profile_caption(user)}',
+                                                     photo=base64.b64decode(user.photo.encode('ascii')))
 
                 elif callback == config.positive_approval_callback:
                     user.status = config.MAIN_MENU
@@ -634,9 +640,9 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
                 print(query.data)
                 if callback == config.swipe_callback:
-                    passive_user_id, like_value, passive_user_chat_id = query.data.split(':')[2], \
-                                                                        query.data.split(':')[3], \
-                                                                        query.data.split(':')[4]
+                    passive_user_id, like_value, passive_user_chat_id = int(query.data.split(':')[1]), \
+                                                                        int(query.data.split(':')[2]), \
+                                                                        int(query.data.split(':')[3])
                     event = user.like(passive_user_id, like_value)
 
                     if event == 'like':
@@ -652,6 +658,18 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                         await context.bot.send_message(chat_id=user.chat_id,
                                                        text=config.match_text,
                                                        reply_markup=build_match_markup(passive_user_chat_id))
+
+                    profile_data = user.get_next_match()
+                    if profile_data is None:
+                        await query.delete_message()
+                        await context.bot.send_message(user.chat_id, config.replies['no_more_matches'])
+                        return
+
+                    await query.edit_message_media(
+                        InputMediaPhoto(base64.b64decode(profile_data.photo.encode('ascii'))))
+                    await query.edit_message_caption(
+                        caption=config.get_profile_caption(profile_data, with_tg=False),
+                        reply_markup=build_swipe_keyboard(profile_data))
 
                 elif callback == config.like_reply_callback:
                     passive_user_chat_id, detail = query.data.split(':')[1], query.data.split(':')[2]
@@ -885,8 +903,7 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 def run():
-    ins = inspect(engine)
-    if not ins.dialect.has_table(engine.connect(), 'users'):
+    if not inspect(engine).dialect.has_table(engine.connect(), 'users'):
         init_database()
 
     Table('users', mo, autoload_with=engine)
