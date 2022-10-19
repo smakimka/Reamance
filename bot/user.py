@@ -206,6 +206,7 @@ class User:
                                                                         where(self.user_user.c.active_user_id == self.id)))).
                                       order_by(func.random()).
                                       limit(1)).first()
+        print(f'{match=}')
         if match is None:
             return None
 
