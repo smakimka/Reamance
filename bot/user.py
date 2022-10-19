@@ -1,5 +1,6 @@
 from sqlalchemy import select, update, insert, delete, func, and_
 from dataclasses import dataclass
+from random import choice
 
 from datetime import datetime
 
@@ -164,20 +165,40 @@ class User:
         self.conn.execute(delete(self.users_interests).where(self.users_interests.c.user_id == self.id))
 
     def get_next_match(self):
-        match = self.conn.execute(select(self.users.c.id,
-                                         self.users.c.chat_id,
-                                         self.users.c.name,
-                                         self.users.c.age,
-                                         self.users.c.faculty,
-                                         self.users.c.year,
-                                         self.users.c.description,
-                                         self.users.c.photo,
-                                         self.users.c.username).
-                                  where(and_(self.users.c.id != self.id,
-                                             self.users.c.id.not_in(select(self.user_user.c.passive_user_id).
-                                                                    where(self.user_user.c.active_user_id == self.id)))).
-                                  order_by(func.random()).
-                                  limit(1)).first()
+        potential_match = self.conn.execute(select(self.user_user.c.active_user_id).
+                                            where(and_(self.user_user.c.passive_user_id == self.id,
+                                                       self.user_user.c.status == config.ANONIMOS)).
+                                            order_by(func.random())).first()
+
+        if potential_match and choice([True, False]):
+            print('Proknylo')
+            match = self.conn.execute(select(self.users.c.id,
+                                             self.users.c.chat_id,
+                                             self.users.c.name,
+                                             self.users.c.age,
+                                             self.users.c.faculty,
+                                             self.users.c.year,
+                                             self.users.c.description,
+                                             self.users.c.photo,
+                                             self.users.c.username).
+                                      where(self.users.c.id == potential_match[0])).first()
+
+        else:
+            print('Ne proknylo')
+            match = self.conn.execute(select(self.users.c.id,
+                                             self.users.c.chat_id,
+                                             self.users.c.name,
+                                             self.users.c.age,
+                                             self.users.c.faculty,
+                                             self.users.c.year,
+                                             self.users.c.description,
+                                             self.users.c.photo,
+                                             self.users.c.username).
+                                      where(and_(self.users.c.id != self.id,
+                                                 self.users.c.id.not_in(select(self.user_user.c.passive_user_id).
+                                                                        where(self.user_user.c.active_user_id == self.id)))).
+                                      order_by(func.random()).
+                                      limit(1)).first()
         if not match:
             return None
 

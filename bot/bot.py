@@ -674,11 +674,12 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 elif callback == config.like_reply_callback:
                     passive_user_chat_id, detail = query.data.split(':')[1], query.data.split(':')[2]
 
+                    await query.edit_message_reply_markup(None)
                     if detail == 'like':
                         with User(mo, conn, passive_user_chat_id) as passive_user:
 
-                            await query.edit_message_text(text=config.get_profile_caption(passive_user),
-                                                          reply_markup=None)
+                            await query.edit_message_caption(caption=config.get_profile_caption(passive_user),
+                                                             reply_markup=None)
 
                             await context.bot.send_message(chat_id=passive_user.chat_id,
                                                            text=config.match_text,
