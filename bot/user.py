@@ -178,7 +178,7 @@ class User:
             print(match)
 
         print(f'{potential_match=}')
-        if potential_match is not None not in user_matches and potential_match[0] and choice([True, False]):
+        if potential_match is not None and (potential_match[0] not in user_matches) and choice([True, False]):
             print('Proknylo')
             match = self.conn.execute(select(self.users.c.id,
                                              self.users.c.chat_id,
