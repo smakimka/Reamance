@@ -173,9 +173,9 @@ class User:
         user_matches = self.conn.execute(select(self.user_user.c.passive_user_id).
                                          where(and_(self.user_user.c.active_user_id == self.id,
                                                     self.user_user.c.status >= config.ANONIMOS)))
-        print(f'{user_matches=}')
         user_matches = (match[0] for match in user_matches)
-        print(f'{user_matches=}')
+        for match in user_matches:
+            print(match)
 
         print(f'{potential_match=}')
         if potential_match is not None not in user_matches and potential_match[0] and choice([True, False]):
