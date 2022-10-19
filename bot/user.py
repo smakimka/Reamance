@@ -170,7 +170,6 @@ class User:
                                                        self.user_user.c.status == config.ANONIMOS)).
                                             order_by(func.random())).first()
         user_match = 0
-        print(f'{potential_match=}')
         if potential_match is not None:
             user_match = self.conn.execute(select(self.user_user.c.passive_user_id).
                                            where(and_(self.user_user.c.active_user_id == self.id,
@@ -191,7 +190,6 @@ class User:
 
         else:
             print(f'Giving {self.username} someone random')
-
             match = self.conn.execute(select(self.users.c.id,
                                              self.users.c.chat_id,
                                              self.users.c.name,
@@ -207,7 +205,6 @@ class User:
                                                  self.users.c.status > config.CONFIRMATION)).
                                       order_by(func.random()).
                                       limit(1)).first()
-        print(f'{match=}')
         if match is None:
             return None
 

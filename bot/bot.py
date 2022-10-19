@@ -436,6 +436,10 @@ async def bot(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     edit_profile_msg = await message.reply_photo(caption=config.get_profile_caption(user),
                                                                  photo=base64.b64decode(user.photo.encode('ascii')),
                                                                  reply_markup=build_edit_profile_keyboard())
+                    if user.active_msg_id is not None:
+                        await context.bot.edit_message_reply_markup(chat_id=user.chat_id,
+                                                                    message_id=user.active_msg_id,
+                                                                    reply_markup=None)
                     user.active_msg_id = edit_profile_msg.id
                 elif message.text == config.start_swiping_phrase:
                     profile_data = user.get_next_match()
@@ -443,6 +447,10 @@ async def bot(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         profile_msg = await message.reply_photo(caption=config.get_profile_caption(profile_data, with_tg=False),
                                                                 photo=base64.b64decode(profile_data.photo.encode('ascii')),
                                                                 reply_markup=build_swipe_keyboard(profile_data))
+                        if user.active_msg_id is not None:
+                            await context.bot.edit_message_reply_markup(chat_id=user.chat_id,
+                                                                        message_id=user.active_msg_id,
+                                                                        reply_markup=None)
                         user.active_msg_id = profile_msg.id
                     else:
                         await message.reply_text(config.replies['no_more_matches'])
@@ -821,6 +829,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                             return
 
                         user.status = config.AGE_PREFERENCES
+                        user.active_msg_id = None
 
                         await query.edit_message_text(config.replies["after_sex_prefs"].format(config.sex_prefs[user.sex_preferences]))
                         await context.bot.send_message(chat_id=user.chat_id,
