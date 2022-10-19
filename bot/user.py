@@ -169,17 +169,15 @@ class User:
                                             where(and_(self.user_user.c.passive_user_id == self.id,
                                                        self.user_user.c.status == config.ANONIMOS)).
                                             order_by(func.random())).first()
-
-        user_matches = self.conn.execute(select(self.user_user.c.passive_user_id).
-                                         where(and_(self.user_user.c.active_user_id == self.id,
-                                                    self.user_user.c.status >= config.ANONIMOS)))
-        user_matches = (match[0] for match in user_matches)
-        for match in user_matches:
-            print(match)
-
+        user_match = 0
         print(f'{potential_match=}')
-        if potential_match is not None and (potential_match[0] not in user_matches) and choice([True, False]):
-            print('Proknylo')
+        if potential_match is not None:
+            user_match = self.conn.execute(select(self.user_user.c.passive_user_id).
+                                           where(and_(self.user_user.c.active_user_id == self.id,
+                                                      self.user_user.c.passive_user_id == potential_match[0])))
+
+        if user_match is None and choice([True, False]):
+            print(f'Giving {self.username} someone who liked him')
             match = self.conn.execute(select(self.users.c.id,
                                              self.users.c.chat_id,
                                              self.users.c.name,
@@ -192,7 +190,8 @@ class User:
                                       where(self.users.c.id == potential_match[0])).first()
 
         else:
-            print('Ne proknylo')
+            print(f'Giving {self.username} someone random')
+
             match = self.conn.execute(select(self.users.c.id,
                                              self.users.c.chat_id,
                                              self.users.c.name,
