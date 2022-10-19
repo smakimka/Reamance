@@ -170,7 +170,8 @@ class User:
                                                        self.user_user.c.status == config.ANONIMOS)).
                                             order_by(func.random())).first()
 
-        if potential_match and choice([True, False]):
+        print(f'{potential_match=}')
+        if potential_match is not None and choice([True, False]):
             print('Proknylo')
             match = self.conn.execute(select(self.users.c.id,
                                              self.users.c.chat_id,
@@ -199,7 +200,7 @@ class User:
                                                                         where(self.user_user.c.active_user_id == self.id)))).
                                       order_by(func.random()).
                                       limit(1)).first()
-        if not match:
+        if match is None:
             return None
 
         passive_user_id = match[0]
