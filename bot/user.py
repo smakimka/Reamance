@@ -203,7 +203,8 @@ class User:
                                              self.users.c.username).
                                       where(and_(self.users.c.id != self.id,
                                                  self.users.c.id.not_in(select(self.user_user.c.passive_user_id).
-                                                                        where(self.user_user.c.active_user_id == self.id)))).
+                                                                        where(self.user_user.c.active_user_id == self.id)),
+                                                 self.users.c.status > config.CONFIRMATION)).
                                       order_by(func.random()).
                                       limit(1)).first()
         print(f'{match=}')
