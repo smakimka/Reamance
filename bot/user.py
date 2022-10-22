@@ -1,4 +1,4 @@
-from sqlalchemy import select, update, insert, delete, func, and_
+from sqlalchemy import select, update, insert, delete, func, and_, or_
 from dataclasses import dataclass
 from random import choice
 
@@ -173,7 +173,7 @@ class User:
         if potential_match is not None:
             user_match = self.conn.execute(select(self.user_user.c.passive_user_id).
                                            where(and_(self.user_user.c.active_user_id == self.id,
-                                                      self.user_user.c.passive_user_id == potential_match[0])))
+                                                      self.user_user.c.passive_user_id == potential_match[0]))).first()
 
         if user_match is None and choice([True, False]):
             print(f'Giving {self.username} someone who liked him')
@@ -202,7 +202,10 @@ class User:
                                       where(and_(self.users.c.id != self.id,
                                                  self.users.c.id.not_in(select(self.user_user.c.passive_user_id).
                                                                         where(self.user_user.c.active_user_id == self.id)),
-                                                 self.users.c.status > config.CONFIRMATION)).
+                                                 self.users.c.status > config.CONFIRMATION,
+                                                 self.users.c.age >= self.min_age,
+                                                 self.users.c.age <= self.max_age,
+                                                 or_(self.users.c.sex == self.sex, self.sex_preferences == config.SHOW_BOTH))).
                                       order_by(func.random()).
                                       limit(1)).first()
         if match is None:
