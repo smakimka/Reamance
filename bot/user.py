@@ -247,18 +247,25 @@ class User:
     def like(self, passive_user_id, like_value):
         self.insert_like(passive_user_id, like_value)
 
-        passive_user_like_value = self.conn.execute(select(self.user_user.c.status).
-                                                    where(and_(self.user_user.c.active_user_id == passive_user_id,
-                                                               self.user_user.c.passive_user_id == self.id))).first()
+        passive_user = self.conn.execute(select(self.user_user.c.status,
+                                                self.user_user.c.passive_user_id).
+                                         where(and_(self.user_user.c.active_user_id == passive_user_id,
+                                                    self.user_user.c.passive_user_id == self.id))).first()
 
-        if passive_user_like_value:
-            if like_value > config.DISLIKE and passive_user_like_value[0] > config.DISLIKE:
+        if passive_user:
+            if like_value > config.DISLIKE and passive_user[0] > config.DISLIKE:
                 return 'match'
-            elif like_value == config.LIKE:
+            elif like_value == config.LIKE and passive_user[0] != config.DISLIKE:
                 return 'like'
         else:
             if like_value == config.LIKE:
-                return 'like'
+                passive_user_filters = self.conn.execute(select(self.users.c.sex_preferences,
+                                                                self.users.c.min_age,
+                                                                self.users.c.max_age).
+                                                         where(self.users.c.id == passive_user_id)).first()
+                if passive_user_filters[2] >= self.age >= passive_user_filters[1] and \
+                        (self.sex == passive_user_filters[0] or passive_user_filters == config.SHOW_BOTH):
+                    return 'like'
         return 'no_event'
 
     def sync(self):

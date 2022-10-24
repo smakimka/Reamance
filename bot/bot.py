@@ -359,7 +359,6 @@ async def bot(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 if collect_year(user, message):
                     user.status = config.DESCRIPTION
                     user.page = 0
-
                     await context.bot.edit_message_text(text=config.replies['after_year'].format(user.year),
                                                         chat_id=user.chat_id,
                                                         message_id=user.active_msg_id)
@@ -416,6 +415,7 @@ async def bot(update: Update, context: ContextTypes.DEFAULT_TYPE):
             elif user.status == config.SEX_PREFERENCES:
                 if collect_sex_prefs(user, message):
                     user.status = config.AGE_PREFERENCES
+                    user.active_msg_id = None
 
                     await send_reply(message, 'age_preferences')
                 else:
@@ -453,6 +453,7 @@ async def bot(update: Update, context: ContextTypes.DEFAULT_TYPE):
                                                                         reply_markup=None)
                         user.active_msg_id = profile_msg.id
                     else:
+                        user.active_msg_id = None
                         await message.reply_text(config.replies['no_more_matches'])
 
             elif user.status == config.EDIT_NAME:
@@ -669,6 +670,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
                     profile_data = user.get_next_match()
                     if profile_data is None:
+                        user.active_msg_id = None
                         await query.delete_message()
                         await context.bot.send_message(user.chat_id, config.replies['no_more_matches'])
                         return
