@@ -647,7 +647,6 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                     if await still_banned(user, context.bot):
                         return
 
-                print(query.data)
                 if callback == config.swipe_callback:
                     passive_user_id, like_value, passive_user_chat_id = int(query.data.split(':')[1]), \
                                                                         int(query.data.split(':')[2]), \
