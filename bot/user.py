@@ -207,6 +207,7 @@ class User:
                                                  or_(self.users.c.sex == self.sex_preferences, self.sex_preferences == config.SHOW_BOTH))).
                                       order_by(func.random()).
                                       limit(1)).first()
+            print(f'{self.sex=} {self.sex_preferences=} {match[2]}')
         if match is None:
             return None
 
