@@ -176,7 +176,6 @@ class User:
                                                       self.user_user.c.passive_user_id == potential_match[0]))).first()
 
         if user_match is None and choice([True, False]):
-            print(f'Giving {self.username} someone who liked him')
             match = self.conn.execute(select(self.users.c.id,
                                              self.users.c.chat_id,
                                              self.users.c.name,
@@ -189,7 +188,7 @@ class User:
                                       where(self.users.c.id == potential_match[0])).first()
 
         else:
-            print(f'Giving {self.username} someone random')
+            print(self.sex)
             match = self.conn.execute(select(self.users.c.id,
                                              self.users.c.chat_id,
                                              self.users.c.name,
@@ -205,7 +204,7 @@ class User:
                                                  self.users.c.status > config.CONFIRMATION,
                                                  self.users.c.age >= self.min_age,
                                                  self.users.c.age <= self.max_age,
-                                                 or_(self.users.c.sex == self.sex, self.sex_preferences == config.SHOW_BOTH))).
+                                                 or_(self.users.c.sex == self.sex_preferences, self.sex_preferences == config.SHOW_BOTH))).
                                       order_by(func.random()).
                                       limit(1)).first()
         if match is None:
