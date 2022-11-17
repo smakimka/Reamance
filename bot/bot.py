@@ -3,19 +3,19 @@ from io import BytesIO
 import base64
 import copy
 from datetime import datetime
+import time
 
 import telegram
 from sqlalchemy import create_engine, MetaData, Table, inspect
 
-from telegram import InlineQueryResultArticle, InputTextMessageContent, Update, ReplyKeyboardRemove, \
-    InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
+from telegram import Update, ReplyKeyboardRemove, InputMediaPhoto
 from telegram.constants import ParseMode
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, CallbackQueryHandler, filters
 
 import config
-from .db import main as init_database
-from .user import User
-from .markup import Markup
+from db import main as init_database
+from user import User
+from markup import Markup
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
@@ -80,6 +80,8 @@ def build_edit_profile_keyboard():
     keyboard.add_callback(3, 1, f'{config.edit_profile_callback}:sex_preferences')
     keyboard.add_callback(4, 0, f'{config.edit_profile_callback}:age_preferences')
     keyboard.add_callback(4, 1, f'{config.edit_profile_callback}:photo')
+    keyboard.add_callback(5, 0, f'{config.edit_profile_callback}:visible')
+
     return keyboard.inline
 
 
@@ -442,6 +444,10 @@ async def bot(update: Update, context: ContextTypes.DEFAULT_TYPE):
                                                                     reply_markup=None)
                     user.active_msg_id = edit_profile_msg.id
                 elif message.text == config.start_swiping_phrase:
+                    if not user.visible:
+                        await message.reply_text(config.replies['need_to_be_visible'])
+                        return
+
                     profile_data = user.get_next_match()
                     if profile_data is not None:
                         profile_msg = await message.reply_photo(caption=config.get_profile_caption(profile_data, with_tg=False),
@@ -898,6 +904,17 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                         await query.edit_message_caption(
                             caption=f'{query.message.caption}\n\n{config.edit_profile_phrases[detail]}',
                             reply_markup=None)
+
+                    elif detail == 'visible':
+                        if user.visible:
+                            await query.message.reply_text(config.replies['now_invisible'])
+                        else:
+                            await query.message.reply_text(config.replies['now_visible'])
+
+                        user.visible = not user.visible
+                        await query.edit_message_caption(caption=config.get_profile_caption(user),
+                                                         reply_markup=build_edit_profile_keyboard())
+                        return
             
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -913,7 +930,21 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             await update.message.reply_text(f'{user.status=}', reply_markup=config.main_menu_markup)
 
 
+def await_db_initialization():
+    print('awaiting database initialization')
+    while True:
+        try:
+            engine.connect()
+            print('database is up, continuing')
+            break
+        except:
+            print('database is not up, waiting')
+            time.sleep(1)
+
+
 def run():
+    await_db_initialization()
+
     if not inspect(engine).dialect.has_table(engine.connect(), 'users'):
         init_database()
 

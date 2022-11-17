@@ -201,6 +201,7 @@ class User:
                                                  self.users.c.id.not_in(select(self.user_user.c.passive_user_id).
                                                                         where(self.user_user.c.active_user_id == self.id)),
                                                  self.users.c.status > config.CONFIRMATION,
+                                                 self.users.c.visible == True,
                                                  self.users.c.age >= self.min_age,
                                                  self.users.c.age <= self.max_age,
                                                  or_(self.users.c.sex == self.sex_preferences, self.sex_preferences == config.SHOW_BOTH))).

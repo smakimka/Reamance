@@ -1,18 +1,29 @@
 version: "3.9"
 services:
-  bot:
-    build: .
-    command: "python3 -u main.py"
-    depends_on:
-      - postgres
   postgres:
     image: postgres:13.3
-    environment:
-      POSTGRES_DB: "${DB_NAME}"
-      POSTGRES_USER: "${DB_USER}"
-      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+    environment: &env
+      POSTGRES_DB: $DB_NAME
+      POSTGRES_USER: $DB_USER
+      POSTGRES_PASSWORD: $DB_PASSWORD
       PGDATA: "/var/lib/postgresql/data/pgdata"
     volumes:
       - ./pgdata:/var/lib/postgresql/data/pgdata
     ports:
       - "127.0.0.1:5433:5432"
+      -
+  bot:
+    build: bot/
+    command: "python3 -u main.py"
+    depends_on:
+      - postgres
+    environment:
+      <<: *env
+
+  stats_api:
+    build: stats_api/
+    command: uvicorn --bind 0.0.0.0:8000 rstat:app
+    depends_on:
+      - postgres
+    environment:
+      <<: *env

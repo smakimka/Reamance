@@ -1,14 +1,14 @@
 import os
 from dotenv import load_dotenv
 
-from bot.markup import Markup
+from markup import Markup
 from datetime import timedelta
 
 load_dotenv()
 # DB
-DB_USER = os.getenv('DB_USER')
-DB_PASSWORD = os.getenv('DB_PASSWORD')
-DB_NAME = os.getenv('DB_NAME')
+DB_USER = os.getenv('POSTGRES_USER')
+DB_PASSWORD = os.getenv('POSTGRES_PASSWORD')
+DB_NAME = os.getenv('POSTGRES_DB')
 
 DB_CONNECTION_STRING = f'postgresql://{DB_USER}:{DB_PASSWORD}@postgres:5432/{DB_NAME}'
 
@@ -163,7 +163,8 @@ edit_profile_markup = Markup([['Имя', 'Возраст'],
                               ['Факультет', 'Курс'],
                               ['Описание', 'Интересы'],
                               ['Пол', 'Предпочтения по полу'],
-                              ['Предпочтения по возрасту', 'Фото']])
+                              ['Предпочтения по возрасту', 'Фото'],
+                              ['Изменить видимость анкеты']])
 swipe_markup = Markup([['❤', '🖤', '❌']])
 
 like_text = '#like\nТебе поставили лайк! Нажми на кнопку и узнай кто это.'
@@ -241,6 +242,9 @@ replies = {
     'too_much_interests': 'Ты и так оченб интересный, хватит',
     'no_more_matches': 'Сори, но люди. подходящие твоим запросам закончились :(',
     'banned': 'Тебе выдан бан на день, сиди жди теперь',
+    'need_to_be_visible': 'Чтобы смотреть анкеты сначала сделай свою анкету видимой',
+    'now_invisible': 'Теперь ты невидимка',
+    'now_visible': 'Теперь тебя снова видно',
 }
 
 
