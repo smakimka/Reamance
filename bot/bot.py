@@ -33,6 +33,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if user.status != config.NEW:
                 user.status = config.NEW
                 user.username = message.from_user.name
+                user.clear_interests()
                 await message.reply_text('Начнем сначала', reply_markup=ReplyKeyboardRemove())
 
             keyboard = copy.deepcopy(config.replies['terms']['markup'])
@@ -642,14 +643,14 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                     await context.bot.send_message(chat_id=user.chat_id,
                                                    text=config.replies['positive_approval']['text'],
                                                    reply_markup=config.replies['positive_approval']['markup'])
-                    await query.edit_message_caption(
+                    await query.edit_message_text(
                         f'{query.message.caption} ({config.approval_caption} by {query.from_user.name})')
 
                 elif callback == config.negative_approval_callback:
                     user.ban_count += 1
                     await context.bot.send_message(chat_id=user.chat_id,
                                                    text=config.replies['negative_approval'])
-                    await query.edit_message_caption(
+                    await query.edit_message_text(
                         f'{query.message.caption} ({config.disapproval_caption} by {query.from_user.name})')
     else:
         with engine.connect() as conn:
