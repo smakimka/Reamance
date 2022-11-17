@@ -919,8 +919,6 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                             await query.message.reply_text(config.replies['now_visible'])
 
                         user.visible = not user.visible
-                        await query.edit_message_caption(caption=config.get_profile_caption(user),
-                                                         reply_markup=build_edit_profile_keyboard())
                         return
 
 
@@ -938,6 +936,8 @@ def await_db_initialization():
 
 def run():
     await_db_initialization()
+
+    init_database()
 
     if not inspect(engine).dialect.has_table(engine.connect(), 'users'):
         init_database()

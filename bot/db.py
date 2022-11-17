@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, DateTime, Boolean, ForeignKey, Text, insert
+from sqlalchemy.sql import func
 
 from config import DB_CONNECTION_STRING, interests, NAME_MAX_LEN, DESCRIPTION_MAX_LEN, INTEREST_MAX_LEN
 
@@ -48,6 +49,7 @@ def main():
                       Column('active_user_id', ForeignKey('users.id'), nullable=False),
                       Column('passive_user_id', ForeignKey('users.id'), nullable=False),
                       Column('status', Integer, nullable=False),
+                      Column('timestamp', DateTime, nullable=False, default=func.now()),
                       )
 
     with engine.connect() as conn:
