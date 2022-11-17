@@ -13,7 +13,7 @@ services:
       - "127.0.0.1:5433:5432"
   bot:
     build: bot/
-    command: "python3 -u main.py"
+    command: python3 -u main.py
     depends_on:
       - postgres
     environment:
@@ -21,8 +21,10 @@ services:
 
   stats_api:
     build: stats_api/
-    command: uvicorn --bind 0.0.0.0:8000 rstat:app
+    command: uvicorn rstat:app --host 127.0.0.1 --port 8000
     depends_on:
       - postgres
     environment:
       <<: *env
+    ports:
+      - "127.0.0.1:8000:8000"
