@@ -582,10 +582,16 @@ async def photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 keyboard.add_callback(0, 0, f'{config.positive_approval_callback}:{message.from_user.id}')
                 keyboard.add_callback(0, 1, f'{config.negative_approval_callback}:{message.from_user.id}')
 
-                await context.bot.send_photo(caption=f'{config.admin_approval_caption} ({message.from_user.name})',
-                                             chat_id=config.admin_group_chat_id,
-                                             photo=file.read(),
-                                             reply_markup=keyboard.inline)
+                media = [InputMediaPhoto(base64.b64decode(user.photo.encode('ascii')),
+                                         caption=config.get_profile_caption(user)),
+                         InputMediaPhoto(file.read())]
+
+                await context.bot.send_media_group(chat_id=config.admin_group_chat_id,
+                                                   media=media)
+
+                await context.bot.send_message(text=f'{config.admin_approval_caption} ({message.from_user.name})',
+                                               chat_id=config.admin_group_chat_id,
+                                               reply_markup=keyboard.inline)
                 
             elif user.status == config.EDIT_PHOTO:
                 file = await context.bot.get_file(message.photo[-1].file_id)
@@ -915,19 +921,6 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                         await query.edit_message_caption(caption=config.get_profile_caption(user),
                                                          reply_markup=build_edit_profile_keyboard())
                         return
-            
-
-async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.message.reply_text("Use /start to test this bot.")
-
-
-async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    with engine.connect() as conn:
-        with User(mo, conn, update.message.from_user.id) as user:
-            user.status = config.MAIN_MENU
-            user.page = 0
-
-            await update.message.reply_text(f'{user.status=}', reply_markup=config.main_menu_markup)
 
 
 def await_db_initialization():
@@ -956,8 +949,6 @@ def run():
     # init tg
     application = ApplicationBuilder().token(config.bot_token).build()
     application.add_handler(CommandHandler('start', start))
-    application.add_handler(CommandHandler('help', help_command))
-    application.add_handler(CommandHandler('test', test))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.Chat(config.admin_group_chat_id), bot))
     application.add_handler(MessageHandler(filters.PHOTO, photo))
     application.add_handler(CallbackQueryHandler(button))
