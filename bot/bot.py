@@ -644,14 +644,14 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                                                    text=config.replies['positive_approval']['text'],
                                                    reply_markup=config.replies['positive_approval']['markup'])
                     await query.edit_message_text(
-                        f'{query.message.caption} ({config.approval_caption} by {query.from_user.name})')
+                        f'{query.message.text} ({config.approval_caption} by {query.from_user.name})')
 
                 elif callback == config.negative_approval_callback:
                     user.ban_count += 1
                     await context.bot.send_message(chat_id=user.chat_id,
                                                    text=config.replies['negative_approval'])
                     await query.edit_message_text(
-                        f'{query.message.caption} ({config.disapproval_caption} by {query.from_user.name})')
+                        f'{query.message.text} ({config.disapproval_caption} by {query.from_user.name})')
     else:
         with engine.connect() as conn:
             with User(mo, conn, query.from_user.id) as user:
