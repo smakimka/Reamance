@@ -937,8 +937,6 @@ def await_db_initialization():
 def run():
     await_db_initialization()
 
-    init_database()
-
     if not inspect(engine).dialect.has_table(engine.connect(), 'users'):
         init_database()
 
