@@ -258,10 +258,12 @@ class User:
                 return 'like'
         else:
             if like_value == config.LIKE:
+                print('attemting like')
                 passive_user_filters = self.conn.execute(select(self.users.c.sex_preferences,
                                                                 self.users.c.min_age,
                                                                 self.users.c.max_age).
                                                          where(self.users.c.id == passive_user_id)).first()
+                print(passive_user_filters)
                 if passive_user_filters[2] >= self.age >= passive_user_filters[1] and \
                         (self.sex == passive_user_filters[0] or passive_user_filters == config.SHOW_BOTH):
                     return 'like'

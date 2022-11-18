@@ -665,6 +665,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                                                                         int(query.data.split(':')[2]), \
                                                                         int(query.data.split(':')[3])
                     event = user.like(passive_user_id, like_value)
+                    print(event)
 
                     if event == 'like':
                         await context.bot.send_message(chat_id=passive_user_chat_id,
