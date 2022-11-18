@@ -699,13 +699,16 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                     await query.edit_message_reply_markup(None)
                     if detail == 'like':
                         with User(mo, conn, passive_user_chat_id) as passive_user:
-
+                            user.like(passive_user_id=passive_user.id,
+                                      like_value=config.LIKE)
                             await query.edit_message_caption(caption=config.get_profile_caption(passive_user),
                                                              reply_markup=None)
 
                             await context.bot.send_message(chat_id=passive_user.chat_id,
                                                            text=config.match_text,
                                                            reply_markup=build_match_markup(user.chat_id))
+                    elif detail == 'dislike':
+                        user.like(passive_user_id=passive_user_chat_id, like_value=config.DISLIKE)
 
                 elif callback == config.edit_data_callback:
                     detail = query.data.split(':', 1)[1]
@@ -936,7 +939,7 @@ def await_db_initialization():
 
 def run():
     await_db_initialization()
-
+    init_database()
     if not inspect(engine).dialect.has_table(engine.connect(), 'users'):
         init_database()
 

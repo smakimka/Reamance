@@ -49,7 +49,7 @@ def main():
                       Column('active_user_id', ForeignKey('users.id'), nullable=False),
                       Column('passive_user_id', ForeignKey('users.id'), nullable=False),
                       Column('status', Integer, nullable=False),
-                      Column('timestamp', DateTime, nullable=False, default=func.now()),
+                      Column('timestamp', DateTime, nullable=True, default=func.now),
                       )
 
     with engine.connect() as conn:
