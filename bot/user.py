@@ -265,7 +265,7 @@ class User:
                                                          where(self.users.c.id == passive_user_id)).first()
                 print(passive_user_filters)
                 if passive_user_filters[2] >= self.age >= passive_user_filters[1] and \
-                        (self.sex == passive_user_filters[0] or passive_user_filters == config.SHOW_BOTH):
+                        (self.sex == passive_user_filters[0] or passive_user_filters[0] == config.SHOW_BOTH):
                     return 'like'
         return 'no_event'
 
