@@ -940,8 +940,8 @@ def await_db_initialization():
 def run():
     await_db_initialization()
 
-    # if not inspect(engine).dialect.has_table(engine.connect(), 'users'):
-    init_database()
+    if not inspect(engine).dialect.has_table(engine.connect(), 'users'):
+        init_database()
 
     Table('users', mo, autoload_with=engine)
     Table('interests', mo, autoload_with=engine)
