@@ -21,7 +21,7 @@ services:
 
   stats_api:
     build: stats_api/
-    command: uvicorn rstat:app --host 127.0.0.1 --port 8000
+    command: uvicorn rstat:app --host 0.0.0.0 --port 8000
     depends_on:
       - postgres
     environment:

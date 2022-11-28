@@ -11,7 +11,7 @@ def main():
 
     users_table = Table('users', mo,
           Column('id', Integer, primary_key=True, autoincrement=True),
-          Column('chat_id', Integer, nullable=False),
+          Column('chat_id', String, nullable=False),
           Column('status', Integer, nullable=False, default=0),
           Column('visible', Boolean, nullable=False, default=True),
           Column('reg_timestamp', DateTime, nullable=False),
