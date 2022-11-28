@@ -15,7 +15,7 @@ class User:
         self.user_user = mo.tables['user_user']
 
         self.conn = conn
-        self.chat_id = chat_id
+        self.chat_id = str(chat_id)
 
         self.id = None
         self.status = None
