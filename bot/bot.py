@@ -986,4 +986,6 @@ def run():
     application.add_handler(CallbackQueryHandler(button))
     application.add_handler(MessageHandler(filters.Document.IMAGE, image))
 
+    application.add_error_handler(error_handler)
+
     application.run_polling()
