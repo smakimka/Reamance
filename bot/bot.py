@@ -31,10 +31,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     with engine.connect() as conn:
         with User(mo, conn, message.from_user.id) as user:
             if user.status != config.NEW:
-                user.status = config.NEW
-                user.username = message.from_user.name
-                user.clear_interests()
-                await message.reply_text('Начнем сначала', reply_markup=ReplyKeyboardRemove())
+                await message.reply_text(config.replies['wrong_input'])
+                return
 
             keyboard = copy.deepcopy(config.replies['terms']['markup'])
             keyboard.add_callback(0, 0, f'{config.edit_data_callback}:confirmed')
