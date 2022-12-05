@@ -42,6 +42,14 @@ async def reactions(start: float, end: float, access_token: str | None = Header(
     end = datetime.fromtimestamp(end)
 
     with engine.connect() as conn:
+        test = conn.execute(select(user_user.c.active_user_id,
+                                     user_user.c.passive_user_id,
+                                     user_user.c.status).
+                              where(and_(user_user.c.timestamp <= end, user_user.c.timestamp >= start)))
+        for react in test:
+            print(react)
+
+        return {}
         reacts = conn.execute(select(user_user.c.active_user_id,
                                      user_user.c.passive_user_id,
                                      user_user.c.status).
