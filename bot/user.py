@@ -241,6 +241,7 @@ class User:
             'active_user_id': self.id,
             'passive_user_id': passive_user_id,
             'status': like_value,
+            'timestamp': datetime.now()
         }))
 
     def like(self, passive_user_id, like_value):

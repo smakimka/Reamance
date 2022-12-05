@@ -978,6 +978,12 @@ def run():
     Table('user_user', mo, autoload_with=engine)
     Table('users_interests', mo, autoload_with=engine)
 
+    from sqlalchemy import update
+    with engine.connect() as conn:
+        conn.execute(update(mo.tables['user_user']).values({
+            'timestamp': datetime(day=3, month=12, year=2022)
+        }).where(mo.tables['user_user'].c.timestamp == None))
+
     # init tg
     application = ApplicationBuilder().token(config.bot_token).build()
     application.add_handler(CommandHandler('start', start))
