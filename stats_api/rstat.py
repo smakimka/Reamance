@@ -40,7 +40,6 @@ async def reactions(start: float, end: float, access_token: str | None = Header(
 
     start = datetime.fromtimestamp(start)
     end = datetime.fromtimestamp(end)
-    print(f'{start=} {end=}')
 
     with engine.connect() as conn:
         reacts = conn.execute(select(user_user.c.active_user_id,
@@ -48,7 +47,9 @@ async def reactions(start: float, end: float, access_token: str | None = Header(
                                      user_user.c.status).
                               where(and_(user_user.c.timestamp <= end, user_user.c.timestamp >= start)))
 
-        print(f'{reacts=}')
+        for react in reacts:
+            print(react)
+
         reacts = [[react[0], react[1], react[2]] for react in reacts]
         for react in reacts:
             react[0] = conn.execute(select(users.c.username).where(users.c.id == react[0])).first()[0]
