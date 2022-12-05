@@ -44,8 +44,7 @@ async def reactions(start: float, end: float, access_token: str | None = Header(
     with engine.connect() as conn:
         test = conn.execute(select(user_user.c.active_user_id,
                                      user_user.c.passive_user_id,
-                                     user_user.c.status).
-                              where(and_(user_user.c.timestamp <= end, user_user.c.timestamp >= start)))
+                                     user_user.c.status))
         for react in test:
             print(react)
 
