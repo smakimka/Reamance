@@ -173,7 +173,7 @@ like_markup = Markup([['Посмотреть']])
 match_text = '#match\nДля тебя нашлась пара'
 match_markup = Markup([['Посмотреть']])
 
-anonimos_like_text = '#a-like\nТебя кто-то лайкнул'
+anonimos_like_text = '#a-like\nУ тебя новый анонимный лайк'
 
 like_reply_markup = Markup([['❤', '❌']])
 
