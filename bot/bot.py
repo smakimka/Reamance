@@ -696,7 +696,11 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                                                                         int(query.data.split(':')[3])
                     event = user.like(passive_user_id, like_value)
 
-                    if event == 'like':
+                    if event == 'anonimos':
+                        await context.bot.send_message(chat_id=passive_user_chat_id,
+                                                       text=config.anonimos_like_text)
+
+                    elif event == 'like':
                         await context.bot.send_message(chat_id=passive_user_chat_id,
                                                        text=config.like_text,
                                                        reply_markup=build_like_markup(user))

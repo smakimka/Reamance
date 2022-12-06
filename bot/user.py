@@ -247,6 +247,9 @@ class User:
     def like(self, passive_user_id, like_value):
         self.insert_like(passive_user_id, like_value)
 
+        if like_value == config.DISLIKE:
+            return 'no_event'
+
         passive_user = self.conn.execute(select(self.user_user.c.status,
                                                 self.user_user.c.passive_user_id).
                                          where(and_(self.user_user.c.active_user_id == passive_user_id,
@@ -258,14 +261,17 @@ class User:
             elif like_value == config.LIKE and passive_user[0] != config.DISLIKE:
                 return 'like'
         else:
-            if like_value == config.LIKE:
-                passive_user_filters = self.conn.execute(select(self.users.c.sex_preferences,
-                                                                self.users.c.min_age,
-                                                                self.users.c.max_age).
-                                                         where(self.users.c.id == passive_user_id)).first()
-                if passive_user_filters[2] >= self.age >= passive_user_filters[1] and \
-                        (self.sex == passive_user_filters[0] or passive_user_filters[0] == config.SHOW_BOTH):
+            passive_user_filters = self.conn.execute(select(self.users.c.sex_preferences,
+                                                            self.users.c.min_age,
+                                                            self.users.c.max_age).
+                                                     where(self.users.c.id == passive_user_id)).first()
+            if passive_user_filters[2] >= self.age >= passive_user_filters[1] and \
+                    (self.sex == passive_user_filters[0] or passive_user_filters[0] == config.SHOW_BOTH):
+                if like_value == config.LIKE:
                     return 'like'
+                elif like_value == config.ANONIMOS:
+                    return 'anonimos'
+
         return 'no_event'
 
     def sync(self):

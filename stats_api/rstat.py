@@ -44,10 +44,11 @@ async def reactions(start: float, end: float, access_token: str | None = Header(
     with engine.connect() as conn:
         reacts = conn.execute(select(user_user.c.active_user_id,
                                      user_user.c.passive_user_id,
-                                     user_user.c.status).
+                                     user_user.c.status,
+                                     user_user.c.timestamp).
                               where(and_(user_user.c.timestamp <= end, user_user.c.timestamp >= start)))
 
-        reacts = [[react[0], react[1], react[2]] for react in reacts]
+        reacts = [[react[0], react[1], react[2], react[3]] for react in reacts]
         for react in reacts:
             react[0] = conn.execute(select(users.c.username).where(users.c.id == react[0])).first()[0]
             react[1] = conn.execute(select(users.c.username).where(users.c.id == react[1])).first()[0]
@@ -57,6 +58,6 @@ async def reactions(start: float, end: float, access_token: str | None = Header(
         if not response.get(react[0]):
             response[react[0]] = {}
 
-        response[react[0]][react[1]] = react[2]
+        response[react[0]][react[1]] = {'value': react[2], 'timestamp': react[3]}
 
     return response
