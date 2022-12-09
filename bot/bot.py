@@ -623,6 +623,8 @@ async def photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 await context.bot.send_message(text=f'{config.admin_approval_caption} ({message.from_user.name})',
                                                chat_id=config.admin_group_chat_id,
                                                reply_markup=keyboard.inline)
+
+                user.status = config.AWAITING_CONFIRMATION
                 
             elif user.status == config.EDIT_PHOTO:
                 file = await context.bot.get_file(message.photo[-1].file_id)
