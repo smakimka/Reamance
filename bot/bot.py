@@ -64,9 +64,10 @@ async def get_user_starts(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.message.chat_id == config.admin_group_chat_id:
         user_login = update.message.text.split(' ')[1]
 
-        user_data = requests.get(f'http://stats_api:3030/reactions/user/{user_login}')
+        user_data = requests.get(f'http://stats_api:3030/reactions/user/{user_login}',
+                                 headers={'access-token': '28871017-272a-4b6f-80a1-a1cd8d71ec3f'})
 
-        await update.message.reply_text(user_data.text)
+        await update.message.reply_text(user_data.json())
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
