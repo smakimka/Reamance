@@ -102,7 +102,8 @@ async def reactions(user_login: str, access_token: str | None = Header(default=N
         if response_info['value'] == 'like' or response_info['value'] == 'anonim':
             if user_reacts.get(response) is not None and \
                     (user_reacts[response]['value'] == 'like' or user_reacts[response]['value'] == 'anonim'):
-                matches.append({'user': response, 'timestamp': max(response_info['timestamp'], user_reacts[response]['timestamp'].strftime("%m/%d/%Y, %H:%M:%S"))})
+                timestamp = max(response_info['timestamp'], user_reacts[response]['timestamp'])
+                matches.append({'user': response, 'timestamp': timestamp.strftime("%m/%d/%Y, %H:%M:%S")})
             else:
                 likes.append({'user': response, 'timestamp': response_info['timestamp'].strftime("%m/%d/%Y, %H:%M:%S")})
 
