@@ -63,7 +63,7 @@ async def reactions(start: float, end: float, access_token: str | None = Header(
     return response
 
 
-@app.get("reactions/user/{user_login}/")
+@app.get("/reactions/user/{user_login}/")
 async def reactions(user_login: str, access_token: str | None = Header(default=None)):
     if not access_token or access_token != ACCESS_TOKEN:
         raise HTTPException(status_code=404, detail='**** you')
