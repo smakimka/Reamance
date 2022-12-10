@@ -86,9 +86,9 @@ async def reactions(user_login: str, access_token: str | None = Header(default=N
 
         user_reacts = {}
         responses = {}
-        user_login = conn.execute(select(users.c.username).where(users.c.id == user_id)).first()[0]
         for react in reacts:
             if react[0] == user_id:
+                resp_user_login = conn.execute(select(users.c.username).where(users.c.id == react[1])).first()[0]
                 user_reacts[user_login] = {'value': like_values[react[2]], 'timestamp': react[3]}
             else:
                 resp_user_login = conn.execute(select(users.c.username).where(users.c.id == react[0])).first()[0]
