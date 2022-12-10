@@ -1026,11 +1026,6 @@ def run():
     Table('user_user', mo, autoload_with=engine)
     Table('users_interests', mo, autoload_with=engine)
 
-    with engine.connect() as conn:
-        result = conn.execute(text("DELETE from user_user where active_user_id = 3 and passive_user_id = 10;"))
-
-    print(result)
-    exit(0)
     # init tg
     application = ApplicationBuilder().token(config.bot_token).build()
     application.add_handler(CommandHandler('start', start))
