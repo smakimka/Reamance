@@ -103,16 +103,16 @@ async def reactions(user_login: str, access_token: str | None = Header(default=N
             if user_reacts.get(response) is not None and \
                     (user_reacts[response]['value'] == 'like' or user_reacts[response]['value'] == 'anonim'):
                 timestamp = max(response_info['timestamp'], user_reacts[response]['timestamp'])
-                matches.append({'user': response, 'timestamp': timestamp.strftime("%m/%d/%Y, %H:%M:%S")})
+                matches.append({'user': response, 'timestamp': timestamp.strftime("%m/%d, %H:%M:%S")})
             else:
-                likes.append({'user': response, 'timestamp': response_info['timestamp'].strftime("%m/%d/%Y, %H:%M:%S")})
+                likes.append({'user': response, 'timestamp': response_info['timestamp'].strftime("%m/%d, %H:%M:%S")})
 
         else:
-            dislikes.append({'user': response, 'timestamp': response_info['timestamp'].strftime("%m/%d/%Y, %H:%M:%S")})
+            dislikes.append({'user': response, 'timestamp': response_info['timestamp'].strftime("%m/%d, %H:%M:%S")})
 
     timeline = []
     for user_react, react_values in user_reacts.items():
-        timeline.append({'event': f'{user_react} ({react_values["value"]})', 'timestamp': (react_values["timestamp"].strftime("%m/%d/%Y, %H:%M:%S"))})
+        timeline.append({'event': f'{user_react} ({react_values["value"]})', 'timestamp': (react_values["timestamp"].strftime("%m/%d, %H:%M:%S"))})
 
     return {'likes': {'count': len(likes), 'values': likes},
             'matches': {'count': len(matches), 'values': matches},
