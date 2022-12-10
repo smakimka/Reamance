@@ -102,21 +102,18 @@ async def reactions(user_login: str, access_token: str | None = Header(default=N
         if response_info['value'] == 'like' or response_info['value'] == 'anonim':
             if user_reacts.get(response) is not None and \
                     (user_reacts[response]['value'] == 'like' or user_reacts[response]['value'] == 'anonim'):
-                matches.append(response)
+                matches.append({'user': response, 'timestamp': max(response_info['timestamp'], user_reacts[response]['timestamp'])})
             else:
-                likes.append(response)
+                likes.append({'user': response, 'timestamp': user_reacts[response]['timestamp']})
 
         else:
-            dislikes.append(response)
+            dislikes.append({'user': response, 'timestamp': user_reacts[response]['timestamp']})
 
     timeline = []
-    last_reaction = datetime.now()
     for user_react, react_values in user_reacts.items():
+        timeline.append({'event': f'{user_react} ({react_values["value"]})', 'timestamp': (react_values["timestamp"])})
 
-        timeline.append(f'{user_react} ({react_values["value"]}) -> {(last_reaction - react_values["timestamp"]).total_seconds()}')
-        last_reaction = react_values['timestamp']
-
-    return {'likes': {'count': len(likes), 'users': likes},
-            'matches': {'count': len(matches), 'users': matches},
-            'dislikes': {'count': len(dislikes), 'users': dislikes},
-            'timeline': ' -> '.join(timeline)}
+    return {'likes': {'count': len(likes), 'values': likes},
+            'matches': {'count': len(matches), 'values': matches},
+            'dislikes': {'count': len(dislikes), 'values': dislikes},
+            'timeline': timeline}
