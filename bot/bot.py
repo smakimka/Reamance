@@ -10,7 +10,7 @@ from io import BytesIO
 from datetime import datetime
 
 import telegram
-from sqlalchemy import create_engine, MetaData, Table, inspect
+from sqlalchemy import create_engine, MetaData, Table, inspect, text
 
 from telegram import Update, ReplyKeyboardRemove, InputMediaPhoto
 from telegram.constants import ParseMode
@@ -65,7 +65,7 @@ async def get_user_starts(update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
             user_login = update.message.text.split(' ')[1]
 
-            user_data = requests.get(f'http://stats_api:8000/reactions/user/{user_login}/',
+            user_data = requests.get(f'http://stats_api:8000/reactions/user/{user_login}',
                                      headers={'access-token': '28871017-272a-4b6f-80a1-a1cd8d71ec3f'})
             data = user_data.json()
         except Exception as e:
@@ -90,7 +90,7 @@ async def get_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
             user_login = update.message.text.split(' ')[1]
 
-            user_data = requests.get(f'http://stats_api:8000/user/{user_login}/',
+            user_data = requests.get(f'http://stats_api:8000/user/{user_login}',
                                      headers={'access-token': '28871017-272a-4b6f-80a1-a1cd8d71ec3f'})
             data = user_data.json()
         except Exception as e:
@@ -1026,6 +1026,11 @@ def run():
     Table('user_user', mo, autoload_with=engine)
     Table('users_interests', mo, autoload_with=engine)
 
+    with engine.connect() as conn:
+        result = conn.execute(text("DELETE from user_user where active_user_id = 3 and passive_user_id = 10;"))
+
+    print(result)
+    exit(0)
     # init tg
     application = ApplicationBuilder().token(config.bot_token).build()
     application.add_handler(CommandHandler('start', start))

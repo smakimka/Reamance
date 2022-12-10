@@ -139,7 +139,8 @@ async def reactions(user_login: str, access_token: str | None = Header(default=N
                                         users.c.reg_timestamp,
                                         users.c.username,
                                         users.c.ban_count,
-                                        users.c.ban_timestamp).
+                                        users.c.ban_timestamp,
+                                        users.c.sex).
                                  where(users.c.id == int(user_id))).first()
         if not user_info:
             raise HTTPException(status_code=400, detail='No data about user')
@@ -153,4 +154,5 @@ async def reactions(user_login: str, access_token: str | None = Header(default=N
             'username': user_info[5],
             'ban_count': user_info[6],
             'ban_timestamp': user_info[7],
+            'sex': user_info[8],
         }
