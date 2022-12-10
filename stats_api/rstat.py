@@ -109,6 +109,14 @@ async def reactions(user_login: str, access_token: str | None = Header(default=N
         else:
             dislikes.append(response)
 
+    timeline = []
+    last_reaction = user_reacts[0]['timestamp']
+    for user_react, react_values in user_reacts.items():
+
+        timeline.append(f'{user_react} ({react_values["value"]}) -> {(last_reaction - react_values["timestamp"]).total_seconds()}')
+        last_reaction = react_values['timestamp']
+
     return {'likes': {'count': len(likes), 'users': likes},
             'matches': {'count': len(matches), 'users': matches},
-            'dislikes': {'count': len(dislikes), 'users': dislikes}}
+            'dislikes': {'count': len(dislikes), 'users': dislikes},
+            'timeline': ' -> '.join(timeline)}
