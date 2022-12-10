@@ -110,7 +110,7 @@ async def reactions(user_login: str, access_token: str | None = Header(default=N
             dislikes.append(response)
 
     timeline = []
-    last_reaction = user_reacts[0]['timestamp']
+    last_reaction = datetime.now()
     for user_react, react_values in user_reacts.items():
 
         timeline.append(f'{user_react} ({react_values["value"]}) -> {(last_reaction - react_values["timestamp"]).total_seconds()}')
