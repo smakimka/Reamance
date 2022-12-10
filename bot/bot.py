@@ -85,6 +85,21 @@ async def get_user_starts(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text('\n'.join(stats_text))
 
 
+async def get_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.message.chat_id == config.admin_group_chat_id:
+        try:
+            user_login = update.message.text.split(' ')[1]
+
+            user_data = requests.get(f'http://stats_api:8000/user/{user_login}/',
+                                     headers={'access-token': '28871017-272a-4b6f-80a1-a1cd8d71ec3f'})
+            data = user_data.json()
+        except Exception as e:
+            await update.message.reply_text(str(e))
+            return
+
+        await update.message.reply_text(data)
+
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.message
     with engine.connect() as conn:
@@ -1014,6 +1029,7 @@ def run():
     # init tg
     application = ApplicationBuilder().token(config.bot_token).build()
     application.add_handler(CommandHandler('start', start))
+    application.add_handler(CommandHandler('get_user', get_user))
     application.add_handler(CommandHandler('get_user_stats', get_user_starts))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.Chat(config.admin_group_chat_id), bot))
     application.add_handler(MessageHandler(filters.PHOTO, photo))
