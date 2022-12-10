@@ -104,10 +104,10 @@ async def reactions(user_login: str, access_token: str | None = Header(default=N
                     (user_reacts[response]['value'] == 'like' or user_reacts[response]['value'] == 'anonim'):
                 matches.append({'user': response, 'timestamp': max(response_info['timestamp'], user_reacts[response]['timestamp'])})
             else:
-                likes.append({'user': response, 'timestamp': user_reacts[response]['timestamp']})
+                likes.append({'user': response, 'timestamp': response_info['timestamp']})
 
         else:
-            dislikes.append({'user': response, 'timestamp': user_reacts[response]['timestamp']})
+            dislikes.append({'user': response, 'timestamp': response_info['timestamp']})
 
     timeline = []
     for user_react, react_values in user_reacts.items():
