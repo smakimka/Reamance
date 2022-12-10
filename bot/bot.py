@@ -77,10 +77,10 @@ async def get_user_starts(update: Update, context: ContextTypes.DEFAULT_TYPE):
             stats_text.append(f'{param.capitalize()}:')
             if param == 'timeline':
                 for value in param_data:
-                    stats_text.append(f' - {value["event"]} ({value["timestamp"]})')
+                    stats_text.append(f' - {value["event"]} ({value["timestamp"].strftime("%m/%d/%Y, %H:%M:%S")})')
                 continue
             for value in param_data['values']:
-                stats_text.append(f' - {value["user"]} ({value["timestamp"]})')
+                stats_text.append(f' - {value["user"]} ({value["timestamp"].strftime("%m/%d/%Y, %H:%M:%S")})')
 
         await update.message.reply_text('\n'.join(stats_text))
 
