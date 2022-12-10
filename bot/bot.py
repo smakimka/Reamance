@@ -4,6 +4,7 @@ import html
 import json
 import base64
 import logging
+import requests
 import traceback
 from io import BytesIO
 from datetime import datetime
@@ -57,6 +58,15 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
         await context.bot.send_message(
             chat_id=434585640, text=message, parse_mode=ParseMode.HTML
         )
+
+
+async def get_user_starts(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.message.chat_id == config.admin_group_chat_id:
+        user_login = update.message.text.split(' ')[1]
+
+        user_data = requests.get(f'http://stats_api:3030/reactions/user/{user_login}')
+
+        await update.message.reply_text(user_data.text)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -988,6 +998,7 @@ def run():
     # init tg
     application = ApplicationBuilder().token(config.bot_token).build()
     application.add_handler(CommandHandler('start', start))
+    application.add_handler(CommandHandler('get_user_stats', get_user_starts))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.Chat(config.admin_group_chat_id), bot))
     application.add_handler(MessageHandler(filters.PHOTO, photo))
     application.add_handler(CallbackQueryHandler(button))
