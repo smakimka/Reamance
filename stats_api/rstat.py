@@ -61,3 +61,9 @@ async def reactions(start: float, end: float, access_token: str | None = Header(
         response[react[0]][react[1]] = {'value': react[2], 'timestamp': react[3]}
 
     return response
+
+
+@app.get("/users/<user_login>")
+async def reactions(start: float, end: float, access_token: str | None = Header(default=None)):
+    if not access_token or access_token != ACCESS_TOKEN:
+        raise HTTPException(status_code=404, detail="**** you")
