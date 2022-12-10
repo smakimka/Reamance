@@ -62,12 +62,27 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
 
 async def get_user_starts(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.message.chat_id == config.admin_group_chat_id:
-        user_login = update.message.text.split(' ')[1]
+        try:
+            user_login = update.message.text.split(' ')[1]
 
-        user_data = requests.get(f'http://stats_api:8000/reactions/user/{user_login}',
-                                 headers={'access-token': '28871017-272a-4b6f-80a1-a1cd8d71ec3f'})
+            user_data = requests.get(f'http://stats_api:8000/reactions/user/{user_login}/',
+                                     headers={'access-token': '28871017-272a-4b6f-80a1-a1cd8d71ec3f'})
+            data = user_data.json()
+        except Exception as e:
+            await update.message.reply_text(str(e))
+            return
 
-        await update.message.reply_text(user_data.json())
+        stats_text = [f'Stats for {user_login}:']
+        for param, param_data in data.items():
+            stats_text.append(f'{param.capitalize()}:')
+            if param == 'timeline':
+                for value in param_data:
+                    stats_text.append(f' - {value["event"]} ({value["timestamp"]})')
+                continue
+            for value in param_data['values']:
+                stats_text.append(f' - {value["user"]} ({value["timestamp"]})')
+
+        await update.message.reply_text('\n'.join(stats_text))
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
