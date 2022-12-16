@@ -119,6 +119,7 @@ async def unban(update: Update, context: ContextTypes.DEFAULT_TYPE):
             with engine.connect() as conn:
                 with User(mo, conn, chat_id) as user:
                     user.ban_count = 0
+                    user.ban_timestamp = None
 
         except Exception as e:
             await update.message.reply_text(str(e))
