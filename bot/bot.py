@@ -81,15 +81,15 @@ async def get_user_stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # if update.message.chat_id == config.admin_group_chat_id:
-    data = requests.get(f'http://stats_api:8000/users',
-                        headers={'access-token': '28871017-272a-4b6f-80a1-a1cd8d71ec3f'}).json()
+    if update.message.chat_id == config.admin_group_chat_id:
+        data = requests.get(f'http://stats_api:8000/users',
+                            headers={'access-token': '28871017-272a-4b6f-80a1-a1cd8d71ec3f'}).json()
 
-    await update.message.reply_text(f'Known users: {data["known"]}\n'
-                                    f'Users stuck on terms of service: {data["new"]}\n'
-                                    f'Users stuck on registration: {data["registration"]}\n'
-                                    f'Users stuck on confirmation: {data["confirmation"]}\n'
-                                    f'Registered users: {data["registered"]}')
+        await update.message.reply_text(f'Known users: {data["known"]}\n'
+                                        f'Users stuck on terms of service: {data["new"]}\n'
+                                        f'Users stuck on registration: {data["registration"]}\n'
+                                        f'Users stuck on confirmation: {data["confirmation"]}\n'
+                                        f'Registered users: {data["registered"]}')
 
 
 async def get_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
