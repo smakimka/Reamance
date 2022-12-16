@@ -45,19 +45,14 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
         "</pre>\n\n"
         f"<pre>context.chat_data = {html.escape(str(context.chat_data))}</pre>\n\n"
         f"<pre>context.user_data = {html.escape(str(context.user_data))}</pre>\n\n"
-        f"<pre>{html.escape(tb_string)}</pre>"
     )
 
-    if len(message) > 4096:
-        for i in range(0, len(message), 4096):
-            await context.bot.send_message(
-                chat_id=434585640, text=message[i: i + 4096], parse_mode=ParseMode.HTML
-            )
-
-    else:
-        await context.bot.send_message(
-            chat_id=434585640, text=message, parse_mode=ParseMode.HTML
-        )
+    await context.bot.send_message(
+        chat_id=434585640, text=message, parse_mode=ParseMode.HTML
+    )
+    await context.bot.send_message(
+        chat_id=434585640, text=f"<pre>{html.escape(tb_string)}</pre>", parse_mode=ParseMode.HTML
+    )
 
 
 async def get_user_starts(update: Update, context: ContextTypes.DEFAULT_TYPE):
