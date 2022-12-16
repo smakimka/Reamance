@@ -82,7 +82,7 @@ async def get_user_stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # if update.message.chat_id == config.admin_group_chat_id:
-    data = requests.get(f'http://stats_api:8000/reactions/users',
+    data = requests.get(f'http://stats_api:8000/users',
                         headers={'access-token': '28871017-272a-4b6f-80a1-a1cd8d71ec3f'})
     print(data)
 
@@ -127,12 +127,16 @@ async def send_reply(message, reply_key):
         await message.reply_text(text=config.replies[reply_key]['text'], reply_markup=ReplyKeyboardRemove())
 
 
-async def still_banned(user, bot):
+async def user_is_banned(user, bot):
+    if user.ban_count == config.max_ban_count:
+        user.ban_timestamp = datetime.now() + config.ban_duration
+        user.ban_count += 1
+        await bot.send_message(user.chat_id, config.replies['banned'])
+
     if user.ban_timestamp < datetime.now():
         user.ban_count = 0
         return False
 
-    await bot.send_message(user.chat_id, config.replies['banned'])
     return True
 
 
