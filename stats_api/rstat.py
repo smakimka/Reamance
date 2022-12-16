@@ -159,11 +159,12 @@ async def user(user_login: str, access_token: str | None = Header(default=None))
 
 
 @app.get("/users")
-async def users(access_token: str | None = Header(default=None)):
+async def get_users(access_token: str | None = Header(default=None)):
     if not access_token or access_token != ACCESS_TOKEN:
         raise HTTPException(status_code=404, detail="**** you")
 
     print(select(func.count()).select_from(users))
+    print(select(func.count(users.c.id)))
     return
 
     with engine.connect() as conn:
