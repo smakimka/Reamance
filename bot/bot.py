@@ -1064,6 +1064,7 @@ def run():
     # init tg
     application = ApplicationBuilder().token(config.bot_token).build()
     application.add_handler(CommandHandler('start', start))
+    application.add_handler(CommandHandler('unban', unban))
     application.add_handler(CommandHandler('stats', stats))
     application.add_handler(CommandHandler('get_user', get_user))
     application.add_handler(CommandHandler('get_user_stats', get_user_stats))
