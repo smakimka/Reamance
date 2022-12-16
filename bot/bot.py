@@ -98,13 +98,33 @@ async def get_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
             user_login = update.message.text.split(' ')[1]
 
             user_data = requests.get(f'http://stats_api:8000/user/{user_login}',
-                                     headers={'access-token': '28871017-272a-4b6f-80a1-a1cd8d71ec3f'})
-            data = user_data.json()
+                                     headers={'access-token': '28871017-272a-4b6f-80a1-a1cd8d71ec3f'}).json()
         except Exception as e:
             await update.message.reply_text(str(e))
             return
 
-        await update.message.reply_text(data)
+        await update.message.reply_text('\n'.join([f'{key}: {val}' for key, val in user_data]))
+
+
+async def unban(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.message.chat_id == config.admin_group_chat_id:
+        try:
+            user_login = update.message.text.split(' ')[1]
+
+            user_data = requests.get(f'http://stats_api:8000/user/{user_login}',
+                                     headers={'access-token': '28871017-272a-4b6f-80a1-a1cd8d71ec3f'}).json()
+
+            chat_id = user_data['chat_id']
+
+            with engine.connect() as conn:
+                with User(mo, conn, chat_id) as user:
+                    user.ban_count = 0
+
+        except Exception as e:
+            await update.message.reply_text(str(e))
+            return
+
+        await update.message.reply_text('Success')
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
