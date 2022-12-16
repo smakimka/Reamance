@@ -128,7 +128,7 @@ async def send_reply(message, reply_key):
 
 
 async def user_is_banned(user, bot):
-    if user.ban_timestamp < datetime.now():
+    if user.ban_timestamp is not None and user.ban_timestamp < datetime.now():
         user.ban_count = 0
         return False
     
