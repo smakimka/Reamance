@@ -84,7 +84,7 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # if update.message.chat_id == config.admin_group_chat_id:
     data = requests.get(f'http://stats_api:8000/users',
                         headers={'access-token': '28871017-272a-4b6f-80a1-a1cd8d71ec3f'})
-    print(data)
+    print(data.text)
 
 
 async def get_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
