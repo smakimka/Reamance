@@ -83,8 +83,11 @@ async def get_user_stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # if update.message.chat_id == config.admin_group_chat_id:
     data = requests.get(f'http://stats_api:8000/users',
-                        headers={'access-token': '28871017-272a-4b6f-80a1-a1cd8d71ec3f'})
-    print(data.text)
+                        headers={'access-token': '28871017-272a-4b6f-80a1-a1cd8d71ec3f'}).json()
+
+    await update.message.reply_text(f'Known users: {data["known"]}\n'
+                                    f'Users stuck on confirmation: {data["confirmation"]}\n'
+                                    f'Registered users: {data["registered"]}')
 
 
 async def get_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -106,6 +109,16 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.message
     with engine.connect() as conn:
         with User(mo, conn, message.from_user.id) as user:
+            if user.chat_id == '434585640':
+                keyboard = copy.deepcopy(config.replies['terms']['markup'])
+                keyboard.add_callback(0, 0, f'{config.edit_data_callback}:confirmed')
+
+                start_msg = await message.reply_text(text=config.replies['terms']['text'],
+                                                     reply_markup=keyboard.inline,
+                                                     parse_mode=ParseMode.MARKDOWN_V2)
+                user.active_msg_id = start_msg.id
+                return
+
             if user.status != config.NEW:
                 await message.reply_text(config.replies['wrong_input'])
                 return

@@ -163,16 +163,13 @@ async def get_users(access_token: str | None = Header(default=None)):
     if not access_token or access_token != ACCESS_TOKEN:
         raise HTTPException(status_code=404, detail="**** you")
 
+    result = {}
     with engine.connect() as conn:
-        users_data = conn.execute(select(func.count()).select_from(users))
-        for row in users_data:
-            print(row)
+        result['known'] = conn.execute(select(func.count(users.c.id))).first()[0]
+        result['registered'] = conn.execute(select(func.count(users.c.id)).
+                                            where(users.c.status > 11)).first()[0]
 
-        print('<>')
-        users_data = conn.execute(select(func.count(users.c.id)))
-        for row in users_data:
-            print(row)
+        result['confirmation'] = conn.execute(select(func.count(users.c.id)).
+                                              where(or_(users.c.status == 11, users.c.status == -1))).first()[0]
 
-        return {
-            'ok': 200
-        }
+        return result
