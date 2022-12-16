@@ -672,6 +672,9 @@ async def bot(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if update.message.chat_id == config.admin_group_chat_id:
+        return
+
     message = update.message
     with engine.connect() as conn:
         with User(mo, conn, message.from_user.id) as user:
