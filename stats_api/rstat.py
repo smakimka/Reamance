@@ -4,7 +4,7 @@ from datetime import datetime
 
 from fastapi import FastAPI, Header, HTTPException
 
-from sqlalchemy import create_engine, Table, MetaData, select, or_, and_
+from sqlalchemy import create_engine, Table, MetaData, select, or_, and_, func
 from dotenv import load_dotenv
 
 
@@ -64,7 +64,7 @@ async def reactions(start: float, end: float, access_token: str | None = Header(
 
 
 @app.get("/reactions/user/{user_login}/")
-async def reactions(user_login: str, access_token: str | None = Header(default=None)):
+async def user_reactions(user_login: str, access_token: str | None = Header(default=None)):
     if not access_token or access_token != ACCESS_TOKEN:
         raise HTTPException(status_code=404, detail='**** you')
 
@@ -121,9 +121,50 @@ async def reactions(user_login: str, access_token: str | None = Header(default=N
 
 
 @app.get("/user/{user_login}")
-async def reactions(user_login: str, access_token: str | None = Header(default=None)):
+async def user(user_login: str, access_token: str | None = Header(default=None)):
     if not access_token or access_token != ACCESS_TOKEN:
         raise HTTPException(status_code=404, detail="**** you")
+
+    with engine.connect() as conn:
+        user_id = conn.execute(select(users.c.id).where(users.c.username == user_login)).first()
+        if user_id:
+            user_id = user_id[0]
+        else:
+            raise HTTPException(status_code=400, detail='No such user')
+
+        user_info = conn.execute(select(users.c.id,
+                                        users.c.chat_id,
+                                        users.c.status,
+                                        users.c.visible,
+                                        users.c.reg_timestamp,
+                                        users.c.username,
+                                        users.c.ban_count,
+                                        users.c.ban_timestamp,
+                                        users.c.sex).
+                                 where(users.c.id == int(user_id))).first()
+        if not user_info:
+            raise HTTPException(status_code=400, detail='No data about user')
+
+        return {
+            'id': user_info[0],
+            'chat_id': user_info[1],
+            'status': user_info[2],
+            'visible': user_info[3],
+            'reg_timestamp': user_info[4],
+            'username': user_info[5],
+            'ban_count': user_info[6],
+            'ban_timestamp': user_info[7],
+            'sex': user_info[8],
+        }
+
+
+@app.get("/users")
+async def users(user_login: str, access_token: str | None = Header(default=None)):
+    if not access_token or access_token != ACCESS_TOKEN:
+        raise HTTPException(status_code=404, detail="**** you")
+
+    print(select(func.count(users.c.id)))
+    return
 
     with engine.connect() as conn:
         user_id = conn.execute(select(users.c.id).where(users.c.username == user_login)).first()
