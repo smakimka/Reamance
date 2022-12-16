@@ -132,6 +132,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     with engine.connect() as conn:
         with User(mo, conn, message.from_user.id) as user:
             if user.chat_id == '434585640':
+                user.status = config.NEW
                 keyboard = copy.deepcopy(config.replies['terms']['markup'])
                 keyboard.add_callback(0, 0, f'{config.edit_data_callback}:confirmed')
 
