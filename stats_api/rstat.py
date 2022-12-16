@@ -168,7 +168,11 @@ async def get_users(access_token: str | None = Header(default=None)):
         result['known'] = conn.execute(select(func.count(users.c.id))).first()[0]
         result['registered'] = conn.execute(select(func.count(users.c.id)).
                                             where(users.c.status > 11)).first()[0]
+        result['registration'] = conn.execute(select(func.count(users.c.id)).
+                                              where(and_(users.c.status < 11, users.c.status > 0))).first()[0]
 
+        result['new'] = conn.execute(select(func.count(users.c.id)).
+                                     where(users.c.status == 0)).first()[0]
         result['confirmation'] = conn.execute(select(func.count(users.c.id)).
                                               where(or_(users.c.status == 11, users.c.status == -1))).first()[0]
 
