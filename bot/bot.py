@@ -55,7 +55,7 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
     )
 
 
-async def get_user_starts(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def get_user_stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.message.chat_id == config.admin_group_chat_id:
         try:
             user_login = update.message.text.split(' ')[1]
@@ -78,6 +78,13 @@ async def get_user_starts(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 stats_text.append(f' - {value["user"]} ({value["timestamp"]})')
 
         await update.message.reply_text('\n'.join(stats_text))
+
+
+async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # if update.message.chat_id == config.admin_group_chat_id:
+    data = requests.get(f'http://stats_api:8000/reactions/users',
+                        headers={'access-token': '28871017-272a-4b6f-80a1-a1cd8d71ec3f'})
+    print(data)
 
 
 async def get_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -1024,8 +1031,9 @@ def run():
     # init tg
     application = ApplicationBuilder().token(config.bot_token).build()
     application.add_handler(CommandHandler('start', start))
+    application.add_handler(CommandHandler('stats', stats))
     application.add_handler(CommandHandler('get_user', get_user))
-    application.add_handler(CommandHandler('get_user_stats', get_user_starts))
+    application.add_handler(CommandHandler('get_user_stats', get_user_stats))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.Chat(config.admin_group_chat_id), bot))
     application.add_handler(MessageHandler(filters.PHOTO, photo))
     application.add_handler(CallbackQueryHandler(button))
