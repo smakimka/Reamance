@@ -128,14 +128,14 @@ async def send_reply(message, reply_key):
 
 
 async def user_is_banned(user, bot):
+    if user.ban_timestamp < datetime.now():
+        user.ban_count = 0
+        return False
+    
     if user.ban_count == config.max_ban_count:
         user.ban_timestamp = datetime.now() + config.ban_duration
         user.ban_count += 1
         await bot.send_message(user.chat_id, config.replies['banned'])
-
-    if user.ban_timestamp < datetime.now():
-        user.ban_count = 0
-        return False
 
     return True
 
@@ -390,10 +390,8 @@ async def bot(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.message
     with engine.connect() as conn:
         with User(mo, conn, message.from_user.id) as user:
-            if user.ban_count >= config.max_ban_count:
-                user.ban_timestamp = datetime.now() + config.ban_duration
-                if await still_banned(user, context.bot):
-                    return
+            if await user_is_banned(user, context.bot):
+                return
 
             if user.status == config.NEW:
                 if message.text == config.agreed_keyword:
@@ -641,10 +639,8 @@ async def photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     message = update.message
     with engine.connect() as conn:
         with User(mo, conn, message.from_user.id) as user:
-            if user.ban_count >= config.max_ban_count:
-                user.ban_timestamp = datetime.now() + config.ban_duration
-                if await still_banned(user, context.bot):
-                    return
+            if await user_is_banned(user, context.bot):
+                return
 
             if user.status == config.PHOTO:
                 file = await context.bot.get_file(message.photo[-1].file_id)
@@ -735,10 +731,8 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     else:
         with engine.connect() as conn:
             with User(mo, conn, query.from_user.id) as user:
-                if user.ban_count >= config.max_ban_count:
-                    user.ban_timestamp = datetime.now() + config.ban_duration
-                    if await still_banned(user, context.bot):
-                        return
+                if await user_is_banned(user, context.bot):
+                    return
 
                 if callback == config.swipe_callback:
                     passive_user_id, like_value, passive_user_chat_id = int(query.data.split(':')[1]), \
