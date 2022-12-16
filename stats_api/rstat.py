@@ -165,36 +165,16 @@ async def get_users(access_token: str | None = Header(default=None)):
 
     print(select(func.count()).select_from(users))
     print(select(func.count(users.c.id)))
-    return
-
     with engine.connect() as conn:
-        user_id = conn.execute(select(users.c.id).where(users.c.username == user_login)).first()
-        if user_id:
-            user_id = user_id[0]
-        else:
-            raise HTTPException(status_code=400, detail='No such user')
+        users_data = conn.execute(select(func.count()).select_from(users))
+        for row in users_data:
+            print(users_data)
 
-        user_info = conn.execute(select(users.c.id,
-                                        users.c.chat_id,
-                                        users.c.status,
-                                        users.c.visible,
-                                        users.c.reg_timestamp,
-                                        users.c.username,
-                                        users.c.ban_count,
-                                        users.c.ban_timestamp,
-                                        users.c.sex).
-                                 where(users.c.id == int(user_id))).first()
-        if not user_info:
-            raise HTTPException(status_code=400, detail='No data about user')
+        print('2')
+        users_data = conn.execute(select(func.count(users.c.id)))
+        for row in users_data:
+            print(users_data)
 
         return {
-            'id': user_info[0],
-            'chat_id': user_info[1],
-            'status': user_info[2],
-            'visible': user_info[3],
-            'reg_timestamp': user_info[4],
-            'username': user_info[5],
-            'ban_count': user_info[6],
-            'ban_timestamp': user_info[7],
-            'sex': user_info[8],
+            'ok': 200
         }
