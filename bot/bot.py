@@ -166,15 +166,14 @@ async def send_reply(message, reply_key):
 
 async def user_is_banned(user, bot):
     if user.ban_timestamp is not None and user.ban_timestamp < datetime.now():
-        user.ban_count = 0
-        return False
+        return True
     
     if user.ban_count == config.max_ban_count:
         user.ban_timestamp = datetime.now() + config.ban_duration
-        user.ban_count += 1
+        user.ban_count = 0
         await bot.send_message(user.chat_id, config.replies['banned'])
 
-    return True
+    return False
 
 
 def build_after_edit_keyboard():
