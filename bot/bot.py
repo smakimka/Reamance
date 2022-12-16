@@ -103,7 +103,7 @@ async def get_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(str(e))
             return
 
-        await update.message.reply_text('\n'.join([f'{key}: {val}' for key, val in user_data]))
+        await update.message.reply_text('\n'.join([f'{key}: {val}' for key, val in user_data.items()]))
 
 
 async def unban(update: Update, context: ContextTypes.DEFAULT_TYPE):
