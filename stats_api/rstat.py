@@ -163,17 +163,15 @@ async def get_users(access_token: str | None = Header(default=None)):
     if not access_token or access_token != ACCESS_TOKEN:
         raise HTTPException(status_code=404, detail="**** you")
 
-    print(select(func.count()).select_from(users))
-    print(select(func.count(users.c.id)))
     with engine.connect() as conn:
         users_data = conn.execute(select(func.count()).select_from(users))
         for row in users_data:
-            print(users_data)
+            print(row)
 
-        print('2')
+        print('<>')
         users_data = conn.execute(select(func.count(users.c.id)))
         for row in users_data:
-            print(users_data)
+            print(row)
 
         return {
             'ok': 200
