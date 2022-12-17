@@ -779,6 +779,19 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                                                                         int(query.data.split(':')[3])
                     event = user.like(passive_user_id, like_value)
 
+                    profile_data = user.get_next_match()
+                    if profile_data is None:
+                        user.active_msg_id = None
+                        await query.delete_message()
+                        await context.bot.send_message(user.chat_id, config.replies['no_more_matches'])
+                        return
+
+                    await query.edit_message_media(
+                        InputMediaPhoto(base64.b64decode(profile_data.photo.encode('ascii'))))
+                    await query.edit_message_caption(
+                        caption=config.get_profile_caption(profile_data, with_tg=False),
+                        reply_markup=build_swipe_keyboard(profile_data))
+
                     if event == 'anonimos':
                         await context.bot.send_message(chat_id=passive_user_chat_id,
                                                        text=config.anonimos_like_text)
@@ -797,18 +810,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                                                        text=config.match_text,
                                                        reply_markup=build_match_markup(passive_user_chat_id))
 
-                    profile_data = user.get_next_match()
-                    if profile_data is None:
-                        user.active_msg_id = None
-                        await query.delete_message()
-                        await context.bot.send_message(user.chat_id, config.replies['no_more_matches'])
-                        return
 
-                    await query.edit_message_media(
-                        InputMediaPhoto(base64.b64decode(profile_data.photo.encode('ascii'))))
-                    await query.edit_message_caption(
-                        caption=config.get_profile_caption(profile_data, with_tg=False),
-                        reply_markup=build_swipe_keyboard(profile_data))
 
                 elif callback == config.like_reply_callback:
                     passive_user_chat_id, detail = query.data.split(':')[1], query.data.split(':')[2]
