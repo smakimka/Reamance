@@ -15,6 +15,7 @@ from sqlalchemy import create_engine, MetaData, Table, inspect, text
 from telegram import Update, ReplyKeyboardRemove, InputMediaPhoto
 from telegram.constants import ParseMode
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, CallbackQueryHandler, filters
+from telegram.error import Forbidden
 
 import config
 from db import main as init_database
@@ -38,6 +39,23 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
     tb_string = "".join(tb_list)
 
     update_str = update.to_dict() if isinstance(update, Update) else str(update)
+
+    if isinstance(context.error, Forbidden):
+        data = update.callback_query.data
+        if data.startswith('swipe'):
+            pidr_chat_id = update.callback_query.data.split(':')[-1]
+
+            with engine.connect() as conn:
+                with User(mo, conn, pidr_chat_id) as pidr:
+                    pidr.visible = False
+                    await context.bot.send_message(
+                        chat_id=config.admin_group_chat_id, text=f'Меня заблочило уебище ({pidr.username}), сделал его невидимкой'
+                    )
+                    return
+        else:
+            await context.bot.send_message(
+                chat_id=434585640, text='Эта ошибка из-за блока и что-то не предусмотрено'
+            )
 
     message = (
         f"An exception was raised while handling an update\n"
